@@ -12,29 +12,37 @@ import { colors, fonts, shadow } from "../src/theme";
 
 export default function ColorScreen() {
   const {
-    apiError,
     colors: palette,
     completeWords,
     draft,
+    entriesStatus,
     refreshEntries,
-    refreshing,
     saveDraft,
+    saveStatus,
     selectedColor,
     setSelectedColor,
+    todayId,
   } = useAppState();
   const words = completeWords ?? draft.words;
 
   const save = async () => {
     const ok = await saveDraft();
     if (ok) {
-      router.replace("/(tabs)/day");
+      if (draft.date === todayId) {
+        router.replace("/(tabs)/day");
+      } else {
+        router.replace({
+          pathname: "/day-detail/[date]",
+          params: { date: draft.date },
+        });
+      }
     }
   };
 
   return (
-    <Screen onRefresh={refreshEntries} refreshing={refreshing}>
+    <Screen onRefresh={refreshEntries} refreshing={entriesStatus.loading}>
       <ScreenHeader eyebrow={getDateTitle(draft.date)} title="この日に色を置く" />
-      <ErrorBanner message={apiError} onRetry={refreshEntries} />
+      <ErrorBanner message={entriesStatus.error} onRetry={refreshEntries} />
 
       <View style={styles.selectedPreview}>
         <View style={[styles.largeChip, { backgroundColor: selectedColor.hex }]} />
@@ -83,7 +91,8 @@ export default function ColorScreen() {
           戻る
         </AppButton>
         <AppButton
-          disabled={!completeWords || refreshing}
+          busy={saveStatus.loading}
+          disabled={!completeWords}
           icon={<Check color={colors.paperElevated} size={18} />}
           onPress={save}
           style={styles.primaryButton}
@@ -91,6 +100,7 @@ export default function ColorScreen() {
           この日を残す
         </AppButton>
       </View>
+      <ErrorBanner message={saveStatus.error} />
     </Screen>
   );
 }

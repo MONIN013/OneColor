@@ -14,6 +14,11 @@ export default function OnboardingScreen() {
     router.replace("/post");
   };
 
+  const skip = async () => {
+    await markOnboardingSeen();
+    router.replace("/(tabs)/day");
+  };
+
   return (
     <Screen>
       <View style={styles.brandLockup}>
@@ -41,7 +46,7 @@ export default function OnboardingScreen() {
       >
         今日を残す
       </AppButton>
-      <Pressable accessibilityRole="button" onPress={() => router.replace("/(tabs)/day")}>
+      <Pressable accessibilityRole="button" onPress={skip} style={styles.skipButton}>
         <Text style={styles.skip}>今日の記録を見る</Text>
       </Pressable>
     </Screen>
@@ -125,8 +130,13 @@ const styles = StyleSheet.create({
     fontSize: 30,
     lineHeight: 38,
   },
+  skipButton: {
+    minHeight: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 10,
+  },
   skip: {
-    marginTop: 18,
     textAlign: "center",
     color: colors.primaryDark,
     fontFamily: fonts.sansBold,

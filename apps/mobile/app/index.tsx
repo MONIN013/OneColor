@@ -1,7 +1,7 @@
 import { Redirect } from "expo-router";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { useAppState } from "../src/state/AppState";
-import { colors } from "../src/theme";
+import { colors, fonts } from "../src/theme";
 
 export default function IndexRoute() {
   const { hasSeenOnboarding, ready } = useAppState();
@@ -9,7 +9,8 @@ export default function IndexRoute() {
   if (!ready) {
     return (
       <View style={styles.loading}>
-        <ActivityIndicator color={colors.ink} />
+        <ActivityIndicator accessibilityLabel="読み込み中" color={colors.ink} />
+        <Text style={styles.loadingText}>読み込み中</Text>
       </View>
     );
   }
@@ -24,6 +25,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
+    gap: 12,
     backgroundColor: colors.paperElevated,
+  },
+  loadingText: {
+    color: colors.inkSubtle,
+    fontFamily: fonts.sansBold,
+    fontSize: 13,
   },
 });

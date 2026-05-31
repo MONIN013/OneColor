@@ -56,3 +56,8 @@ export const getMonthDays = (monthId: string) => {
 
 export const dateIdForDay = (monthId: string, day: number) =>
   `${monthId}-${String(day).padStart(2, "0")}`;
+
+export const shiftMonthId = (monthId: string, offset: number) => {
+  const [year, month] = monthId.split("-").map(Number);
+  return getMonthId(new Date(year, month - 1 + offset, 1));
+};

@@ -1,8 +1,9 @@
 import type { ReactNode } from "react";
-import { Pressable, StyleSheet, Text, ViewStyle } from "react-native";
+import { ActivityIndicator, Pressable, StyleSheet, Text, ViewStyle } from "react-native";
 import { colors, fonts } from "../theme";
 
 type AppButtonProps = {
+  busy?: boolean;
   children: ReactNode;
   disabled?: boolean;
   icon?: ReactNode;
@@ -12,6 +13,7 @@ type AppButtonProps = {
 };
 
 export function AppButton({
+  busy = false,
   children,
   disabled = false,
   icon,
@@ -20,20 +22,23 @@ export function AppButton({
   style,
 }: AppButtonProps) {
   const isPrimary = kind === "primary";
+  const isDisabled = disabled || busy;
+  const indicatorColor = isPrimary ? colors.paperElevated : colors.ink;
   return (
     <Pressable
       accessibilityRole="button"
-      disabled={disabled}
+      accessibilityState={{ busy, disabled: isDisabled }}
+      disabled={isDisabled}
       onPress={onPress}
       style={({ pressed }) => [
         styles.button,
         isPrimary ? styles.primary : styles.secondary,
-        disabled && styles.disabled,
-        pressed && !disabled && styles.pressed,
+        isDisabled && styles.disabled,
+        pressed && !isDisabled && styles.pressed,
         style,
       ]}
     >
-      {icon}
+      {busy ? <ActivityIndicator color={indicatorColor} size="small" /> : icon}
       <Text style={[styles.label, isPrimary ? styles.primaryLabel : styles.secondaryLabel]}>
         {children}
       </Text>

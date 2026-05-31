@@ -4,7 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ColorReaction, DayEntry, NearDay, NearMode, PaletteColor } from "@onecolor/shared";
 import { dayPalette, findPaletteColor, makeEntry } from "@onecolor/shared";
 import { api } from "../lib/api";
-import { getTodayId, getMonthId } from "../lib/dates";
+import { getTodayId, getMonthId, shiftMonthId } from "../lib/dates";
 import { getAnonymousUserId } from "../lib/identity";
 
 const draftKey = "onecolor:draft-v2";
@@ -17,26 +17,36 @@ type Draft = {
   words: [string, string, string];
 };
 
+type OperationStatus = {
+  error: string | null;
+  loading: boolean;
+};
+
 type AppStateValue = {
   anonymousUserId: string | null;
-  apiError: string | null;
   colors: PaletteColor[];
   completeWords: [string, string, string] | null;
   currentMonth: string;
   draft: Draft;
   entries: DayEntry[];
   entriesByDate: Map<string, DayEntry>;
+  entriesStatus: OperationStatus;
   hasSeenOnboarding: boolean;
   nearDays: NearDay[];
   nearMode: NearMode;
+  nearStatus: OperationStatus;
+  reactionStatus: OperationStatus;
   ready: boolean;
-  refreshing: boolean;
   returnedColorsByDate: Record<string, ColorReaction[]>;
+  saveStatus: OperationStatus;
   selectedColor: PaletteColor;
   selectedDate: string;
   todayId: string;
   getEntry: (date: string) => DayEntry | undefined;
   getReturnedColors: (date: string) => ColorReaction[];
+  getReturnedColorStatus: (date: string) => OperationStatus;
+  goToNextMonth: () => void;
+  goToPreviousMonth: () => void;
   markOnboardingSeen: () => Promise<void>;
   refreshEntries: () => Promise<void>;
   refreshNearDays: (mode?: NearMode) => Promise<void>;
@@ -50,11 +60,19 @@ type AppStateValue = {
   setWord: (index: number, value: string) => void;
 };
 
+const idleStatus: OperationStatus = {
+  error: null,
+  loading: false,
+};
+
 const createDraft = (date: string): Draft => ({
   colorName: "遠い青",
   date,
   words: ["", "", ""],
 });
+
+const getErrorMessage = (error: unknown, fallback: string) =>
+  error instanceof Error ? error.message : fallback;
 
 const normalizeDateId = (value: unknown, fallback: string) =>
   typeof value === "string" && dateIdPattern.test(value) ? value : fallback;
@@ -63,18 +81,21 @@ const AppStateContext = createContext<AppStateValue | null>(null);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const todayId = useMemo(getTodayId, []);
-  const currentMonth = useMemo(() => getMonthId(new Date()), []);
   const [anonymousUserId, setAnonymousUserId] = useState<string | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
   const [colors, setColors] = useState(dayPalette);
+  const [currentMonth, setCurrentMonth] = useState(() => getMonthId(new Date()));
   const [draft, setDraft] = useState<Draft>(() => createDraft(todayId));
   const [entries, setEntries] = useState<DayEntry[]>([]);
+  const [entriesStatus, setEntriesStatus] = useState<OperationStatus>(idleStatus);
   const [hasSeenOnboarding, setHasSeenOnboarding] = useState(false);
   const [nearDays, setNearDays] = useState<NearDay[]>([]);
   const [nearMode, setNearMode] = useState<NearMode>("color");
+  const [nearStatus, setNearStatus] = useState<OperationStatus>(idleStatus);
+  const [reactionStatus, setReactionStatus] = useState<OperationStatus>(idleStatus);
   const [ready, setReady] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+  const [returnedColorStatuses, setReturnedColorStatuses] = useState<Record<string, OperationStatus>>({});
   const [returnedColorsByDate, setReturnedColorsByDate] = useState<Record<string, ColorReaction[]>>({});
+  const [saveStatus, setSaveStatus] = useState<OperationStatus>(idleStatus);
   const [selectedDate, setSelectedDate] = useState(todayId);
 
   const entriesByDate = useMemo(
@@ -113,13 +134,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     (date: string) => returnedColorsByDate[date] ?? [],
     [returnedColorsByDate],
   );
+  const getReturnedColorStatus = useCallback(
+    (date: string) => returnedColorStatuses[date] ?? idleStatus,
+    [returnedColorStatuses],
+  );
 
   const refreshEntries = useCallback(async () => {
     if (!anonymousUserId) {
       return;
     }
 
-    setRefreshing(true);
+    setEntriesStatus({ error: null, loading: true });
     try {
       const [paletteResponse, entriesResponse] = await Promise.all([
         api.palette(anonymousUserId),
@@ -127,11 +152,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       ]);
       setColors(paletteResponse.colors);
       setEntries(entriesResponse.entries);
-      setApiError(null);
+      setEntriesStatus({ error: null, loading: false });
     } catch (error) {
-      setApiError(error instanceof Error ? error.message : "APIに接続できませんでした。");
-    } finally {
-      setRefreshing(false);
+      setEntriesStatus({
+        error: getErrorMessage(error, "APIに接続できませんでした。"),
+        loading: false,
+      });
     }
   }, [anonymousUserId, currentMonth]);
 
@@ -141,16 +167,17 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      setRefreshing(true);
+      setNearStatus({ error: null, loading: true });
       try {
         const response = await api.nearDays(anonymousUserId, selectedDate, mode);
         setNearDays(response.days);
         setNearMode(mode);
-        setApiError(null);
+        setNearStatus({ error: null, loading: false });
       } catch (error) {
-        setApiError(error instanceof Error ? error.message : "似た日を読み込めませんでした。");
-      } finally {
-        setRefreshing(false);
+        setNearStatus({
+          error: getErrorMessage(error, "似た日を読み込めませんでした。"),
+          loading: false,
+        });
       }
     },
     [anonymousUserId, selectedDate],
@@ -162,18 +189,28 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      setRefreshing(true);
+      setReturnedColorStatuses((current) => ({
+        ...current,
+        [date]: { error: null, loading: true },
+      }));
       try {
         const response = await api.entryReactions(anonymousUserId, date);
         setReturnedColorsByDate((current) => ({
           ...current,
           [date]: response.reactions,
         }));
-        setApiError(null);
+        setReturnedColorStatuses((current) => ({
+          ...current,
+          [date]: { error: null, loading: false },
+        }));
       } catch (error) {
-        setApiError(error instanceof Error ? error.message : "返ってきた色を読み込めませんでした。");
-      } finally {
-        setRefreshing(false);
+        setReturnedColorStatuses((current) => ({
+          ...current,
+          [date]: {
+            error: getErrorMessage(error, "返ってきた色を読み込めませんでした。"),
+            loading: false,
+          },
+        }));
       }
     },
     [anonymousUserId],
@@ -185,7 +222,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return false;
       }
 
-      setRefreshing(true);
+      setReactionStatus({ error: null, loading: true });
       try {
         const response = await api.returnColor(anonymousUserId, entryId, {
           colorName,
@@ -200,13 +237,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
               : day,
           ),
         );
-        setApiError(null);
+        setReactionStatus({ error: null, loading: false });
         return true;
       } catch (error) {
-        setApiError(error instanceof Error ? error.message : "色を返せませんでした。");
+        setReactionStatus({
+          error: getErrorMessage(error, "色を返せませんでした。"),
+          loading: false,
+        });
         return false;
-      } finally {
-        setRefreshing(false);
       }
     },
     [anonymousUserId],
@@ -260,7 +298,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [todayId]);
 
   useEffect(() => {
     if (!ready) {
@@ -291,6 +329,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }));
   }, []);
 
+  const goToMonthOffset = useCallback((offset: number) => {
+    setCurrentMonth((current) => {
+      const nextMonth = shiftMonthId(current, offset);
+      setSelectedDate(`${nextMonth}-01`);
+      return nextMonth;
+    });
+  }, []);
+
   const markOnboardingSeen = useCallback(async () => {
     await AsyncStorage.setItem(onboardingKey, "true");
     setHasSeenOnboarding(true);
@@ -307,7 +353,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       return false;
     }
 
-    setRefreshing(true);
+    setSaveStatus({ error: null, loading: true });
     try {
       const response = await api.saveEntry(anonymousUserId, draft.date, {
         words: completeWords,
@@ -321,41 +367,47 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
         return next.sort((a, b) => a.date.localeCompare(b.date));
       });
       setSelectedDate(response.entry.date);
-      setApiError(null);
+      setSaveStatus({ error: null, loading: false });
       return true;
     } catch (error) {
-      setApiError(error instanceof Error ? error.message : "記録を保存できませんでした。");
+      setSaveStatus({
+        error: getErrorMessage(error, "記録を保存できませんでした。"),
+        loading: false,
+      });
       return false;
-    } finally {
-      setRefreshing(false);
     }
   }, [anonymousUserId, completeWords, currentMonth, draft.colorName, draft.date]);
 
   const value = useMemo<AppStateValue>(
     () => ({
       anonymousUserId,
-      apiError,
       colors,
       completeWords,
       currentMonth,
       draft,
       entries,
       entriesByDate,
+      entriesStatus,
       getEntry,
       getReturnedColors,
+      getReturnedColorStatus,
+      goToNextMonth: () => goToMonthOffset(1),
+      goToPreviousMonth: () => goToMonthOffset(-1),
       hasSeenOnboarding,
       markOnboardingSeen,
       nearDays,
       nearMode,
+      nearStatus,
+      reactionStatus,
       ready,
       refreshEntries,
       refreshNearDays,
       refreshReturnedColors,
-      refreshing,
       returnedColorsByDate,
       resetDraft,
       returnColor,
       saveDraft,
+      saveStatus,
       selectedColor,
       selectedDate,
       setNearMode,
@@ -366,28 +418,32 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     }),
     [
       anonymousUserId,
-      apiError,
       colors,
       completeWords,
       currentMonth,
       draft,
       entries,
       entriesByDate,
+      entriesStatus,
       getEntry,
       getReturnedColors,
+      getReturnedColorStatus,
+      goToMonthOffset,
       hasSeenOnboarding,
       markOnboardingSeen,
       nearDays,
       nearMode,
+      nearStatus,
+      reactionStatus,
       ready,
       refreshEntries,
       refreshNearDays,
       refreshReturnedColors,
-      refreshing,
       returnedColorsByDate,
       resetDraft,
       returnColor,
       saveDraft,
+      saveStatus,
       selectedColor,
       selectedDate,
       setNearMode,

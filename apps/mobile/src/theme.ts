@@ -39,7 +39,7 @@ export const appStyles = StyleSheet.create({
     backgroundColor: colors.paperElevated,
   },
   scrollContent: {
-    paddingHorizontal: 20,
+    alignItems: "center",
     paddingTop: 18,
     paddingBottom: 110,
   },

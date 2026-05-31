@@ -12,7 +12,11 @@ export function ErrorBanner({ message, onRetry }: ErrorBannerProps) {
   }
 
   return (
-    <View style={styles.banner}>
+    <View
+      accessibilityLiveRegion="polite"
+      accessibilityRole="alert"
+      style={styles.banner}
+    >
       <Text style={styles.message}>{message}</Text>
       {onRetry ? (
         <Pressable accessibilityRole="button" onPress={onRetry} style={styles.retry}>
@@ -41,10 +45,10 @@ const styles = StyleSheet.create({
   },
   retry: {
     alignSelf: "flex-start",
-    minHeight: 32,
+    minHeight: 48,
     justifyContent: "center",
     borderRadius: 999,
-    paddingHorizontal: 12,
+    paddingHorizontal: 16,
     backgroundColor: colors.surfaceMuted,
   },
   retryLabel: {
