@@ -1,0 +1,23 @@
+{
+  "name": "onecolor",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.25.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel --if-present dev",
+    "dev:api": "pnpm --filter @onecolor/api dev",
+    "dev:mobile": "pnpm --filter @onecolor/mobile dev",
+    "typecheck": "pnpm --filter @onecolor/api prisma:generate && pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@prisma/engines",
+      "better-sqlite3",
+      "esbuild",
+      "msgpackr-extract",
+      "prisma"
+    ]
+  }
+}

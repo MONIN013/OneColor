@@ -1,0 +1,54 @@
+generator client {
+  provider            = "prisma-client"
+  output              = "../src/generated/prisma"
+  importFileExtension = "ts"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id             String          @id
+  createdAt      DateTime        @default(now())
+  entries        Entry[]
+  colorReactions ColorReaction[]
+}
+
+model Entry {
+  id             String          @id @default(uuid())
+  userId         String
+  date           String
+  word1          String
+  word2          String
+  word3          String
+  colorName      String
+  colorHex       String
+  textColor      String
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  colorReactions ColorReaction[]
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@index([userId, date])
+}
+
+model ColorReaction {
+  id        String   @id @default(uuid())
+  entryId   String
+  userId    String
+  colorName String
+  colorHex  String
+  textColor String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  entry Entry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([entryId, userId])
+  @@index([entryId])
+  @@index([userId])
+}

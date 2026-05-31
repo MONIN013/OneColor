@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000">
+<rect width="1600" height="1000" fill="#F8F1E8"/>
+<text x="64" y="90" font-size="40" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">三語一色 Design Tokens v2</text>
+<text x="64" y="132" font-size="18" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">Figma importable palette / components reference</text>
+<rect x="64" y="190" width="96" height="96" rx="24" fill="#F5EFE3"/>
+<text x="176" y="226" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">朝の白</text>
+<text x="176" y="256" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#F5EFE3</text>
+<rect x="304" y="190" width="96" height="96" rx="24" fill="#E8D7B9"/>
+<text x="416" y="226" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">古い紙</text>
+<text x="416" y="256" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#E8D7B9</text>
+<rect x="544" y="190" width="96" height="96" rx="24" fill="#D8D2CA"/>
+<text x="656" y="226" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">薄い灰</text>
+<text x="656" y="256" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#D8D2CA</text>
+<rect x="784" y="190" width="96" height="96" rx="24" fill="#A9A59D"/>
+<text x="896" y="226" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">煙の灰</text>
+<text x="896" y="256" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#A9A59D</text>
+<rect x="1024" y="190" width="96" height="96" rx="24" fill="#B7D2D3"/>
+<text x="1136" y="226" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">透明な水</text>
+<text x="1136" y="256" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#B7D2D3</text>
+<rect x="1264" y="190" width="96" height="96" rx="24" fill="#7E9AAE"/>
+<text x="1376" y="226" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">雨の青</text>
+<text x="1376" y="256" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#7E9AAE</text>
+<rect x="64" y="320" width="96" height="96" rx="24" fill="#5F7E96"/>
+<text x="176" y="356" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">遠い青</text>
+<text x="176" y="386" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#5F7E96</text>
+<rect x="304" y="320" width="96" height="96" rx="24" fill="#263E55"/>
+<text x="416" y="356" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">夜の紺</text>
+<text x="416" y="386" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#263E55</text>
+<rect x="544" y="320" width="96" height="96" rx="24" fill="#A9BD8D"/>
+<text x="656" y="356" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">若葉の緑</text>
+<text x="656" y="386" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#A9BD8D</text>
+<rect x="784" y="320" width="96" height="96" rx="24" fill="#6F8367"/>
+<text x="896" y="356" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">苔の緑</text>
+<text x="896" y="386" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#6F8367</text>
+<rect x="1024" y="320" width="96" height="96" rx="24" fill="#415D52"/>
+<text x="1136" y="356" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">沈んだ緑</text>
+<text x="1136" y="386" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#415D52</text>
+<rect x="1264" y="320" width="96" height="96" rx="24" fill="#1E1D1A"/>
+<text x="1376" y="356" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">深い黒</text>
+<text x="1376" y="386" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#1E1D1A</text>
+<rect x="64" y="450" width="96" height="96" rx="24" fill="#D7B95F"/>
+<text x="176" y="486" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">乾いた黄</text>
+<text x="176" y="516" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#D7B95F</text>
+<rect x="304" y="450" width="96" height="96" rx="24" fill="#E4C981"/>
+<text x="416" y="486" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">蜜の黄</text>
+<text x="416" y="516" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#E4C981</text>
+<rect x="544" y="450" width="96" height="96" rx="24" fill="#D69A5C"/>
+<text x="656" y="486" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">夕方の橙</text>
+<text x="656" y="516" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#D69A5C</text>
+<rect x="784" y="450" width="96" height="96" rx="24" fill="#A75F3F"/>
+<text x="896" y="486" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">錆びた橙</text>
+<text x="896" y="516" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#A75F3F</text>
+<rect x="1024" y="450" width="96" height="96" rx="24" fill="#E6BAB9"/>
+<text x="1136" y="486" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">薄い桃</text>
+<text x="1136" y="516" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#E6BAB9</text>
+<rect x="1264" y="450" width="96" height="96" rx="24" fill="#C9898B"/>
+<text x="1376" y="486" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">くすんだ桃</text>
+<text x="1376" y="516" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#C9898B</text>
+<rect x="64" y="580" width="96" height="96" rx="24" fill="#B85B51"/>
+<text x="176" y="616" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">熱の赤</text>
+<text x="176" y="646" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#B85B51</text>
+<rect x="304" y="580" width="96" height="96" rx="24" fill="#6F3B3B"/>
+<text x="416" y="616" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">暗い赤</text>
+<text x="416" y="646" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#6F3B3B</text>
+<rect x="544" y="580" width="96" height="96" rx="24" fill="#B8A9C8"/>
+<text x="656" y="616" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">藤の紫</text>
+<text x="656" y="646" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#B8A9C8</text>
+<rect x="784" y="580" width="96" height="96" rx="24" fill="#66516F"/>
+<text x="896" y="616" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">深い紫</text>
+<text x="896" y="646" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#66516F</text>
+<rect x="1024" y="580" width="96" height="96" rx="24" fill="#8A6B4E"/>
+<text x="1136" y="616" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">土の茶</text>
+<text x="1136" y="646" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#8A6B4E</text>
+<rect x="1264" y="580" width="96" height="96" rx="24" fill="#5A4537"/>
+<text x="1376" y="616" font-size="20" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">コーヒー色</text>
+<text x="1376" y="646" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="400">#5A4537</text>
+<rect x="64" y="760" width="420" height="104" rx="22" fill="#FFFDF8" stroke="#E4D7C7"/>
+<circle cx="104" cy="812" r="14" fill="#F1E7DA"/>
+<text x="99" y="817" font-size="14" fill="#776C61" font-family="Noto Serif CJK JP, serif" font-weight="700">一</text>
+<text x="148" y="824" font-size="34" fill="#29241F" font-family="Noto Serif CJK JP, serif" font-weight="700">雨</text>
+<rect x="540" y="760" width="420" height="104" rx="22" fill="#5F7E96"/>
+<text x="570" y="800" font-size="18" fill="#FFF9F1" font-family="Noto Serif CJK JP, serif" font-weight="700">遠い青</text>
+<text x="570" y="842" font-size="30" fill="#FFF9F1" font-family="Noto Serif CJK JP, serif" font-weight="700">雨 / 改札 / 嘘</text>
+<rect x="1015" y="760" width="420" height="104" rx="52" fill="#29241F"/>
+<text x="1160" y="824" font-size="24" fill="#FFF9F1" font-family="Noto Serif CJK JP, serif" font-weight="700">今日を残す</text>
+</svg>

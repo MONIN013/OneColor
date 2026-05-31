@@ -1,0 +1,269 @@
+{
+  "name": "3go1iro quiet ritual design system",
+  "version": "2.0",
+  "principles": [
+    "色は情報であり感情ではない",
+    "SNS圧を減らす",
+    "制限をUIで守る"
+  ],
+  "colors": {
+    "semantic": {
+      "paper": "#F8F1E8",
+      "paperElevated": "#FFF9F1",
+      "surfaceMuted": "#F1E7DA",
+      "ink": "#29241F",
+      "inkSubtle": "#776C61",
+      "line": "#E4D7C7",
+      "primary": "#60766E",
+      "primaryDark": "#405650",
+      "dangerSoft": "#A75F3F"
+    },
+    "dayPalette": [
+      {
+        "name": "朝の白",
+        "hex": "#F5EFE3",
+        "recommendedText": "#29241F",
+        "contrastInk": 13.42,
+        "contrastPaper": 1.09
+      },
+      {
+        "name": "古い紙",
+        "hex": "#E8D7B9",
+        "recommendedText": "#29241F",
+        "contrastInk": 10.87,
+        "contrastPaper": 1.35
+      },
+      {
+        "name": "薄い灰",
+        "hex": "#D8D2CA",
+        "recommendedText": "#29241F",
+        "contrastInk": 10.24,
+        "contrastPaper": 1.43
+      },
+      {
+        "name": "煙の灰",
+        "hex": "#A9A59D",
+        "recommendedText": "#29241F",
+        "contrastInk": 6.26,
+        "contrastPaper": 2.35
+      },
+      {
+        "name": "透明な水",
+        "hex": "#B7D2D3",
+        "recommendedText": "#29241F",
+        "contrastInk": 9.64,
+        "contrastPaper": 1.52
+      },
+      {
+        "name": "雨の青",
+        "hex": "#7E9AAE",
+        "recommendedText": "#29241F",
+        "contrastInk": 5.21,
+        "contrastPaper": 2.82
+      },
+      {
+        "name": "遠い青",
+        "hex": "#5F7E96",
+        "recommendedText": "#FFF9F1",
+        "contrastInk": 3.59,
+        "contrastPaper": 4.09
+      },
+      {
+        "name": "夜の紺",
+        "hex": "#263E55",
+        "recommendedText": "#FFF9F1",
+        "contrastInk": 1.39,
+        "contrastPaper": 10.55
+      },
+      {
+        "name": "若葉の緑",
+        "hex": "#A9BD8D",
+        "recommendedText": "#29241F",
+        "contrastInk": 7.58,
+        "contrastPaper": 1.94
+      },
+      {
+        "name": "苔の緑",
+        "hex": "#6F8367",
+        "recommendedText": "#FFF9F1",
+        "contrastInk": 3.75,
+        "contrastPaper": 3.92
+      },
+      {
+        "name": "沈んだ緑",
+        "hex": "#415D52",
+        "recommendedText": "#FFF9F1",
+        "contrastInk": 2.13,
+        "contrastPaper": 6.89
+      },
+      {
+        "name": "深い黒",
+        "hex": "#1E1D1A",
+        "recommendedText": "#FFF9F1",
+        "contrastInk": 1.1,
+        "contrastPaper": 16.11
+      },
+      {
+        "name": "乾いた黄",
+        "hex": "#D7B95F",
+        "recommendedText": "#29241F",
+        "contrastInk": 8.05,
+        "contrastPaper": 1.83
+      },
+      {
+        "name": "蜜の黄",
+        "hex": "#E4C981",
+        "recommendedText": "#29241F",
+        "contrastInk": 9.49,
+        "contrastPaper": 1.55
+      },
+      {
+        "name": "夕方の橙",
+        "hex": "#D69A5C",
+        "recommendedText": "#29241F",
+        "contrastInk": 6.32,
+        "contrastPaper": 2.32
+      },
+      {
+        "name": "錆びた橙",
+        "hex": "#A75F3F",
+        "recommendedText": "#FFF9F1",
+        "contrastInk": 3.18,
+        "contrastPaper": 4.61
+      },
+      {
+        "name": "薄い桃",
+        "hex": "#E6BAB9",
+        "recommendedText": "#29241F",
+        "contrastInk": 8.85,
+        "contrastPaper": 1.66
+      },
+      {
+        "name": "くすんだ桃",
+        "hex": "#C9898B",
+        "recommendedText": "#29241F",
+        "contrastInk": 5.44,
+        "contrastPaper": 2.7
+      },
+      {
+        "name": "熱の赤",
+        "hex": "#B85B51",
+        "recommendedText": "#FFF9F1",
+        "contrastInk": 3.41,
+        "contrastPaper": 4.31
+      },
+      {
+        "name": "暗い赤",
+        "hex": "#6F3B3B",
+        "recommendedText": "#FFF9F1",
+        "contrastInk": 1.73,
+        "contrastPaper": 8.49
+      },
+      {
+        "name": "藤の紫",
+        "hex": "#B8A9C8",
+        "recommendedText": "#29241F",
+        "contrastInk": 6.99,
+        "contrastPaper": 2.1
+      },
+      {
+        "name": "深い紫",
+        "hex": "#66516F",
+        "recommendedText": "#FFF9F1",
+        "contrastInk": 2.17,
+        "contrastPaper": 6.76
+      },
+      {
+        "name": "土の茶",
+        "hex": "#8A6B4E",
+        "recommendedText": "#FFF9F1",
+        "contrastInk": 3.14,
+        "contrastPaper": 4.67
+      },
+      {
+        "name": "コーヒー色",
+        "hex": "#5A4537",
+        "recommendedText": "#FFF9F1",
+        "contrastInk": 1.71,
+        "contrastPaper": 8.57
+      }
+    ]
+  },
+  "typography": {
+    "display": {
+      "fontFamily": "Noto Serif CJK JP / Hiragino Mincho ProN / serif",
+      "sizes": {
+        "hero": 34,
+        "screenTitle": 30,
+        "word": 42,
+        "cardWord": 24
+      }
+    },
+    "ui": {
+      "fontFamily": "Noto Sans CJK JP / system-ui / sans-serif",
+      "sizes": {
+        "label": 12,
+        "body": 14,
+        "button": 16
+      }
+    }
+  },
+  "radii": {
+    "sm": 10,
+    "md": 18,
+    "lg": 24,
+    "xl": 32,
+    "phone": 38
+  },
+  "spacing": {
+    "xs": 4,
+    "sm": 8,
+    "md": 16,
+    "lg": 24,
+    "xl": 32,
+    "xxl": 48
+  },
+  "touchTargets": {
+    "minimumCssPx": 44,
+    "preferredMobilePx": 48
+  },
+  "components": {
+    "WordInput": {
+      "height": 104,
+      "radius": 22,
+      "maxChars": 8,
+      "states": [
+        "empty",
+        "active",
+        "filled",
+        "warning",
+        "error"
+      ]
+    },
+    "ColorChip": {
+      "size": 32,
+      "radius": 10,
+      "showName": true
+    },
+    "CalendarCell": {
+      "visualSize": 40,
+      "targetSize": 48,
+      "states": [
+        "empty",
+        "filled",
+        "selected",
+        "blank"
+      ]
+    },
+    "DayCard": {
+      "radius": 34,
+      "usesDayColorAsBackground": true
+    },
+    "Reaction": {
+      "types": [
+        "色で返す",
+        "3語で返す"
+      ]
+    }
+  }
+}

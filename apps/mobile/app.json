@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "三語一色",
+    "slug": "onecolor",
+    "scheme": "onecolor",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.onecolor.mobile"
+    },
+    "android": {
+      "package": "com.onecolor.mobile",
+      "adaptiveIcon": {
+        "backgroundColor": "#F8F1E8",
+        "foregroundImage": "./assets/adaptive-icon.png"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": ["expo-router"]
+  }
+}

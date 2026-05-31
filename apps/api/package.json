@@ -1,0 +1,38 @@
+{
+  "name": "@onecolor/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "pnpm prisma:generate && pnpm prisma:push && DATABASE_URL=file:./prisma/dev.db tsx watch src/main.ts",
+    "start": "DATABASE_URL=file:./prisma/dev.db tsx src/main.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "pnpm prisma:generate && rm -f prisma/test.db && DATABASE_URL=file:./prisma/test.db prisma db push --force-reset && DATABASE_URL=file:./prisma/test.db vitest run",
+    "prisma:generate": "DATABASE_URL=file:./prisma/dev.db prisma generate",
+    "prisma:push": "DATABASE_URL=file:./prisma/dev.db prisma db push"
+  },
+  "dependencies": {
+    "@nestjs/common": "^11.1.24",
+    "@nestjs/core": "^11.1.24",
+    "@nestjs/platform-express": "^11.1.24",
+    "@onecolor/shared": "workspace:*",
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "better-sqlite3": "^12.4.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@nestjs/testing": "^11.1.24",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^24.10.2",
+    "@types/supertest": "^6.0.3",
+    "prisma": "^7.8.0",
+    "supertest": "^7.1.4",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14"
+  }
+}
