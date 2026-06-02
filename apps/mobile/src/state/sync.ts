@@ -48,7 +48,10 @@ export const normalizePendingEntries = (value: unknown): Record<string, PendingE
     if (!isPendingEntry(item)) {
       continue;
     }
-    entries[item.date] = item;
+    entries[item.date] = {
+      ...item,
+      status: item.status === "syncing" ? "queued" : item.status,
+    };
   }
   return entries;
 };

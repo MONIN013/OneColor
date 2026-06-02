@@ -23,6 +23,22 @@ describe("sync helpers", () => {
     });
   });
 
+  it("restores in-flight pending entries as retryable queued entries", () => {
+    const pending = {
+      baseUpdatedAt: null,
+      clientMutationId: "mutation-1",
+      colorName: "遠い青",
+      date: "2026-06-01",
+      queuedAt: "2026-06-01T00:00:00.000Z",
+      status: "syncing",
+      words: ["雨", "改札", "嘘"],
+    };
+
+    expect(normalizePendingEntries([pending])["2026-06-01"]?.status).toBe(
+      "queued",
+    );
+  });
+
   it("upserts and removes pending entries by date", () => {
     const pending = {
       baseUpdatedAt: null,
