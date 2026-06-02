@@ -6,7 +6,7 @@ import { ErrorBanner } from "../../src/components/ErrorBanner";
 import { Screen } from "../../src/components/Screen";
 import { dateIdForDay, getMonthDays, getMonthLabel } from "../../src/lib/dates";
 import { useAppState } from "../../src/state/AppState";
-import { colors, fonts, shadow } from "../../src/theme";
+import { colors, fonts, radii, shadowLifted, shadowSoft, surfaces } from "../../src/theme";
 
 const weekdays = ["月", "火", "水", "木", "金", "土", "日"];
 
@@ -32,6 +32,10 @@ export default function CalendarScreen() {
     : `${currentMonth}-01`;
   const selectedEntry = getEntry(visibleSelectedDate);
   const { monthName, year } = getMonthLabel(currentMonth);
+  const filledCount = days.reduce((count, day) => {
+    const date = dateIdForDay(currentMonth, day);
+    return getEntry(date) ? count + 1 : count;
+  }, 0);
 
   const openDay = (date: string) => {
     setSelectedDate(date);
@@ -57,6 +61,7 @@ export default function CalendarScreen() {
           <Text style={styles.monthTitle}>
             {monthName} <Text style={styles.year}>{year}</Text>
           </Text>
+          <Text style={styles.monthMeta}>{filledCount}日分の色標本</Text>
         </View>
         <Pressable
           accessibilityLabel="次の月"
@@ -68,66 +73,68 @@ export default function CalendarScreen() {
         </Pressable>
       </View>
 
-      <View accessibilityElementsHidden style={styles.weekdayRow}>
-        {weekdays.map((weekday) => (
-          <Text key={weekday} style={styles.weekday}>
-            {weekday}
-          </Text>
-        ))}
-      </View>
+      <View style={styles.calendarPanel}>
+        <View accessibilityElementsHidden style={styles.weekdayRow}>
+          {weekdays.map((weekday) => (
+            <Text key={weekday} style={styles.weekday}>
+              {weekday}
+            </Text>
+          ))}
+        </View>
 
-      <View
-        accessibilityLabel={`${monthName} ${year}`}
-        style={[styles.calendarGrid, { width: calendarWidth }]}
-      >
-        {Array.from({ length: firstDayOffset }, (_, index) => (
-          <View
-            key={`blank-${index}`}
-            style={[styles.calendarCell, { width: cellSize }, styles.blankCell]}
-          />
-        ))}
-        {days.map((day) => {
-          const date = dateIdForDay(currentMonth, day);
-          const entry = getEntry(date);
-          const selected = visibleSelectedDate === date;
-          const isToday = todayId === date;
-          const stateSuffix = [
-            isToday ? "今日" : null,
-            selected ? "選択中" : null,
-            entry ? "記録あり" : "空白",
-          ].filter(Boolean).join(" ");
-          return (
-            <Pressable
-              accessibilityLabel={
-                entry
-                  ? `${day}日 ${stateSuffix} ${entry.colorName} ${formatWords(entry.words)}`
-                  : `${day}日 ${stateSuffix}`
-              }
-              accessibilityRole="button"
-              accessibilityState={{ selected }}
-              hitSlop={{ left: horizontalHitSlop, right: horizontalHitSlop }}
-              key={date}
-              onPress={() => openDay(date)}
-              style={[
-                styles.calendarCell,
-                { width: cellSize },
-                entry ? styles.filledCell : styles.emptyCell,
-                entry ? { backgroundColor: entry.colorHex } : null,
-                isToday && styles.todayCell,
-                selected && styles.selectedCell,
-              ]}
-            >
-              <Text
+        <View
+          accessibilityLabel={`${monthName} ${year}`}
+          style={[styles.calendarGrid, { width: calendarWidth }]}
+        >
+          {Array.from({ length: firstDayOffset }, (_, index) => (
+            <View
+              key={`blank-${index}`}
+              style={[styles.calendarCell, { width: cellSize }, styles.blankCell]}
+            />
+          ))}
+          {days.map((day) => {
+            const date = dateIdForDay(currentMonth, day);
+            const entry = getEntry(date);
+            const selected = visibleSelectedDate === date;
+            const isToday = todayId === date;
+            const stateSuffix = [
+              isToday ? "今日" : null,
+              selected ? "選択中" : null,
+              entry ? "記録あり" : "空白",
+            ].filter(Boolean).join(" ");
+            return (
+              <Pressable
+                accessibilityLabel={
+                  entry
+                    ? `${day}日 ${stateSuffix} ${entry.colorName} ${formatWords(entry.words)}`
+                    : `${day}日 ${stateSuffix}`
+                }
+                accessibilityRole="button"
+                accessibilityState={{ selected }}
+                hitSlop={{ left: horizontalHitSlop, right: horizontalHitSlop }}
+                key={date}
+                onPress={() => openDay(date)}
                 style={[
-                  styles.dayNumber,
-                  entry ? { color: entry.textColor } : styles.emptyDayNumber,
+                  styles.calendarCell,
+                  { width: cellSize },
+                  entry ? styles.filledCell : styles.emptyCell,
+                  entry ? { backgroundColor: entry.colorHex } : null,
+                  isToday && styles.todayCell,
+                  selected && styles.selectedCell,
                 ]}
               >
-                {day}
-              </Text>
-            </Pressable>
-          );
-        })}
+                <Text
+                  style={[
+                    styles.dayNumber,
+                    entry ? { color: entry.textColor } : styles.emptyDayNumber,
+                  ]}
+                >
+                  {day}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
 
       <Pressable accessibilityRole="button" onPress={() => openDay(visibleSelectedDate)} style={styles.daySummary}>
@@ -159,8 +166,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginTop: 18,
-    marginBottom: 20,
+    marginTop: 8,
+    marginBottom: 18,
   },
   monthTitleWrap: {
     flex: 1,
@@ -169,12 +176,20 @@ const styles = StyleSheet.create({
   monthTitle: {
     color: colors.ink,
     fontFamily: fonts.serifHeavy,
-    fontSize: 30,
+    fontSize: 34,
+    lineHeight: 42,
   },
   year: {
     color: colors.inkSubtle,
     fontFamily: fonts.sansBold,
     fontSize: 13,
+  },
+  monthMeta: {
+    marginTop: 2,
+    color: colors.inkSubtle,
+    fontFamily: fonts.sansBold,
+    fontSize: 12,
+    lineHeight: 18,
   },
   monthNavButton: {
     width: 48,
@@ -182,13 +197,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 999,
-    backgroundColor: "#FFFDF8",
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.md,
+    backgroundColor: surfaces.card,
+    ...shadowSoft,
+  },
+  calendarPanel: {
+    alignItems: "center",
+    paddingVertical: 16,
+    borderWidth: 1,
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.xl,
+    backgroundColor: surfaces.wash,
+    ...shadowSoft,
   },
   weekdayRow: {
     flexDirection: "row",
     gap: 4,
+    width: "100%",
+    paddingHorizontal: 14,
     marginBottom: 8,
   },
   weekday: {
@@ -208,14 +235,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderRadius: 12,
+    borderRadius: radii.sm,
   },
   blankCell: {
     borderColor: "transparent",
   },
   emptyCell: {
-    borderColor: colors.line,
-    backgroundColor: "#FFFDF8",
+    borderColor: surfaces.hairline,
+    backgroundColor: "rgba(255,253,248,0.62)",
   },
   filledCell: {
     borderColor: "transparent",
@@ -225,6 +252,7 @@ const styles = StyleSheet.create({
   },
   selectedCell: {
     borderColor: colors.ink,
+    borderWidth: 2,
   },
   dayNumber: {
     fontFamily: fonts.sansHeavy,
@@ -238,21 +266,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 16,
     marginTop: 22,
-    padding: 16,
+    padding: 18,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 22,
-    backgroundColor: "#FFFDF8",
-    ...shadow,
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.lg,
+    backgroundColor: surfaces.card,
+    ...shadowLifted,
   },
   largeChip: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 64,
+    height: 64,
+    borderRadius: radii.md,
   },
   emptyLargeChip: {
     borderWidth: 1,
-    borderColor: colors.line,
+    borderColor: surfaces.lineStrong,
     backgroundColor: colors.surfaceMuted,
   },
   summaryCopy: {

@@ -7,7 +7,7 @@ import { Screen } from "../src/components/Screen";
 import { ScreenHeader } from "../src/components/ScreenHeader";
 import { getDateTitle } from "../src/lib/dates";
 import { useAppState } from "../src/state/AppState";
-import { colors, fonts } from "../src/theme";
+import { colors, fonts, radii, shadowSoft, surfaces } from "../src/theme";
 
 export default function PostScreen() {
   const { completeWords, draft, getPendingEntry, saveStatus, setWord } = useAppState();
@@ -85,6 +85,18 @@ export default function PostScreen() {
         title="この日の三語"
       />
 
+      <View accessibilityLiveRegion="polite" style={styles.progressPanel}>
+        <View style={styles.progressHeading}>
+          <Text style={styles.progressText}>{progressText}</Text>
+          <Text style={styles.progressMeta}>
+            {completeWords ? "色を選べます" : `あと${remainingCount}語`}
+          </Text>
+        </View>
+        <View style={styles.progressTrack}>
+          <View style={[styles.progressFill, { width: `${(completedCount / 3) * 100}%` }]} />
+        </View>
+      </View>
+
       <View accessibilityLabel="この日の三語入力" style={styles.wordStack}>
         {draft.words.map((word, index) => {
           const isFocused = focusedIndex === index;
@@ -140,7 +152,6 @@ export default function PostScreen() {
       </View>
 
       <View accessibilityLiveRegion="polite" style={styles.progressRow}>
-        <Text style={styles.progressText}>{progressText}</Text>
         {disabledReason ? <Text style={styles.disabledReason}>{disabledReason}</Text> : null}
         {saveStatus.error ? <Text style={styles.saveError}>{saveStatus.error}</Text> : null}
       </View>
@@ -152,6 +163,32 @@ const styles = StyleSheet.create({
   wordStack: {
     gap: 12,
   },
+  progressPanel: {
+    gap: 10,
+    marginBottom: 16,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.lg,
+    backgroundColor: surfaces.cardMuted,
+  },
+  progressHeading: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12,
+  },
+  progressTrack: {
+    height: 8,
+    overflow: "hidden",
+    borderRadius: 999,
+    backgroundColor: colors.surfaceMuted,
+  },
+  progressFill: {
+    height: "100%",
+    borderRadius: 999,
+    backgroundColor: colors.primaryDark,
+  },
   wordInput: {
     minHeight: 104,
     flexDirection: "row",
@@ -160,15 +197,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 18,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 22,
-    backgroundColor: "#FFFDF8",
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.lg,
+    backgroundColor: surfaces.card,
+    ...shadowSoft,
   },
   wordInputFilled: {
-    backgroundColor: "rgba(255,253,248,0.82)",
+    backgroundColor: surfaces.cardMuted,
   },
   wordInputFocused: {
     borderColor: colors.ink,
+    transform: [{ translateY: -1 }],
   },
   wordInputFull: {
     borderColor: colors.primaryDark,
@@ -176,7 +215,7 @@ const styles = StyleSheet.create({
   wordNumber: {
     width: 28,
     height: 28,
-    borderRadius: 14,
+    borderRadius: radii.sm,
     overflow: "hidden",
     backgroundColor: colors.surfaceMuted,
     color: colors.inkSubtle,
@@ -202,7 +241,7 @@ const styles = StyleSheet.create({
     color: colors.primaryDark,
   },
   progressRow: {
-    minHeight: 48,
+    minHeight: 42,
     justifyContent: "center",
     gap: 4,
     marginTop: 14,
@@ -212,6 +251,11 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontFamily: fonts.sansHeavy,
     fontSize: 13,
+  },
+  progressMeta: {
+    color: colors.inkSubtle,
+    fontFamily: fonts.sansBold,
+    fontSize: 12,
   },
   disabledReason: {
     color: colors.inkSubtle,

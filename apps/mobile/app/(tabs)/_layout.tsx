@@ -1,10 +1,11 @@
 import { Tabs } from "expo-router";
 import { CalendarDays, CircleUserRound, Compass, Home } from "lucide-react-native";
-import { colors, fonts } from "../../src/theme";
+import { colors, fonts, radii, shadowSoft, surfaces } from "../../src/theme";
 
 export default function TabLayout() {
   return (
     <Tabs
+      initialRouteName="calendar"
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.ink,
@@ -14,40 +15,47 @@ export default function TabLayout() {
           fontSize: 11,
         },
         tabBarStyle: {
-          minHeight: 74,
+          position: "absolute",
+          left: 14,
+          right: 14,
+          bottom: 10,
+          minHeight: 70,
           paddingTop: 8,
-          paddingBottom: 12,
-          borderTopWidth: 1,
-          borderTopColor: colors.line,
-          backgroundColor: "rgba(245,235,221,0.97)",
+          paddingBottom: 10,
+          borderTopWidth: 0,
+          borderWidth: 1,
+          borderColor: surfaces.lineStrong,
+          borderRadius: radii.xl,
+          backgroundColor: "rgba(255,253,248,0.94)",
+          ...shadowSoft,
         },
       }}
     >
       <Tabs.Screen
-        name="day"
+        name="calendar"
         options={{
-          title: "今日の記録",
-          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
+          title: "暦",
+          tabBarIcon: ({ color, size }) => <CalendarDays color={color} size={size} />,
         }}
       />
       <Tabs.Screen
-        name="calendar"
+        name="day"
         options={{
-          title: "カレンダー",
-          tabBarIcon: ({ color, size }) => <CalendarDays color={color} size={size} />,
+          title: "今日",
+          tabBarIcon: ({ color, size }) => <Home color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="feed"
         options={{
-          title: "みんなの日",
+          title: "みんな",
           tabBarIcon: ({ color, size }) => <Compass color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "プロフィール",
+          title: "私",
           tabBarIcon: ({ color, size }) => <CircleUserRound color={color} size={size} />,
         }}
       />

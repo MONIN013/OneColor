@@ -15,9 +15,7 @@ export default function IndexRoute() {
     );
   }
 
-  return (
-    <Redirect href={hasSeenOnboarding ? "/(tabs)/day" : "/onboarding"} />
-  );
+  return <Redirect href={hasSeenOnboarding ? "/(tabs)/calendar" : "/onboarding"} />;
 }
 
 const styles = StyleSheet.create({

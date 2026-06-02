@@ -9,7 +9,7 @@ import { Screen } from "./Screen";
 import { ScreenHeader } from "./ScreenHeader";
 import { getDateTitle } from "../lib/dates";
 import { useAppState } from "../state/AppState";
-import { colors, fonts, shadow } from "../theme";
+import { colors, fonts, radii, shadowLifted, shadowSoft, surfaces } from "../theme";
 
 type DayRecordViewProps = {
   date: string;
@@ -88,26 +88,36 @@ export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
           accessibilityLabel={`${entry.colorName} ${formatWords(entry.words)}`}
           style={[styles.dayCard, { backgroundColor: entry.colorHex }]}
         >
-          <Text numberOfLines={1} style={[styles.cardColor, { color: entry.textColor }]}>
-            {entry.colorName}
-          </Text>
-          {entry.words.map((word, index) => (
-            <Text
-              adjustsFontSizeToFit
-              key={`${word}-${index}`}
-              minimumFontScale={0.68}
-              numberOfLines={1}
-              style={[styles.cardWord, { color: entry.textColor }]}
-            >
-              {word}
+          <View style={styles.cardBadge}>
+            <Text numberOfLines={1} style={[styles.cardColor, { color: entry.textColor }]}>
+              {entry.colorName}
             </Text>
-          ))}
+          </View>
+          <View style={styles.cardWordStack}>
+            {entry.words.map((word, index) => (
+              <Text
+                adjustsFontSizeToFit
+                key={`${word}-${index}`}
+                minimumFontScale={0.68}
+                numberOfLines={1}
+                style={[styles.cardWord, { color: entry.textColor }]}
+              >
+                {word}
+              </Text>
+            ))}
+          </View>
+          <View style={[styles.cardRule, { backgroundColor: entry.textColor }]} />
         </View>
       ) : (
         <View
           accessibilityLabel={`${getDateTitle(date)} まだ記録なし`}
           style={[styles.dayCard, styles.emptyDayCard]}
         >
+          <View style={styles.emptySwatches}>
+            <View style={[styles.emptySwatch, styles.emptySwatchOne, { backgroundColor: "#5F7E96" }]} />
+            <View style={[styles.emptySwatch, styles.emptySwatchTwo, { backgroundColor: "#D69A5C" }]} />
+            <View style={[styles.emptySwatch, styles.emptySwatchThree, { backgroundColor: "#405650" }]} />
+          </View>
           <Text maxFontSizeMultiplier={1.2} style={styles.emptyTitle}>
             まだ記録なし
           </Text>
@@ -214,14 +224,14 @@ export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
 
 const styles = StyleSheet.create({
   dayCard: {
-    minHeight: 330,
+    minHeight: 350,
     alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    paddingHorizontal: 28,
-    paddingVertical: 34,
-    borderRadius: 34,
-    ...shadow,
+    justifyContent: "space-between",
+    gap: 18,
+    paddingHorizontal: 30,
+    paddingVertical: 30,
+    borderRadius: radii.specimen,
+    ...shadowLifted,
   },
   loadingState: {
     minHeight: 84,
@@ -230,22 +240,71 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   emptyDayCard: {
-    backgroundColor: colors.surfaceMuted,
+    justifyContent: "center",
+    backgroundColor: surfaces.wash,
+    borderWidth: 1,
+    borderColor: surfaces.lineStrong,
+  },
+  emptySwatches: {
+    height: 74,
+    width: 132,
+    marginBottom: 10,
+  },
+  emptySwatch: {
+    position: "absolute",
+    width: 58,
+    height: 68,
+    borderRadius: 18,
+    opacity: 0.82,
+    ...shadowSoft,
+  },
+  emptySwatchOne: {
+    left: 4,
+    top: 4,
+  },
+  emptySwatchTwo: {
+    left: 42,
+    top: 14,
+  },
+  emptySwatchThree: {
+    right: 4,
+    top: 0,
   },
   cardColor: {
     maxWidth: "100%",
-    marginBottom: 18,
     fontFamily: fonts.sansHeavy,
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 12,
+    lineHeight: 18,
     textAlign: "center",
+  },
+  cardBadge: {
+    alignSelf: "flex-start",
+    maxWidth: "78%",
+    minHeight: 34,
+    justifyContent: "center",
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: "rgba(255,249,241,0.22)",
+    borderRadius: radii.sm,
+    backgroundColor: "rgba(255,249,241,0.16)",
+  },
+  cardWordStack: {
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 2,
   },
   cardWord: {
     maxWidth: "100%",
     fontFamily: fonts.serifHeavy,
-    fontSize: 42,
-    lineHeight: 52,
+    fontSize: 46,
+    lineHeight: 56,
     textAlign: "center",
+  },
+  cardRule: {
+    alignSelf: "stretch",
+    height: 1,
+    opacity: 0.28,
   },
   emptyTitle: {
     color: colors.ink,
@@ -263,6 +322,11 @@ const styles = StyleSheet.create({
   },
   replySection: {
     marginTop: 26,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.lg,
+    backgroundColor: surfaces.cardMuted,
   },
   replyTitle: {
     color: colors.ink,
@@ -298,9 +362,9 @@ const styles = StyleSheet.create({
     gap: 8,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 999,
-    backgroundColor: "#FFFDF8",
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.md,
+    backgroundColor: surfaces.card,
   },
   replyDot: {
     width: 20,
@@ -319,9 +383,9 @@ const styles = StyleSheet.create({
     marginTop: 14,
     padding: 14,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 18,
-    backgroundColor: "#FFFDF8",
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.md,
+    backgroundColor: surfaces.cardMuted,
   },
   syncTitle: {
     color: colors.ink,

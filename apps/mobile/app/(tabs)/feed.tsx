@@ -9,7 +9,7 @@ import { Screen } from "../../src/components/Screen";
 import { ScreenHeader } from "../../src/components/ScreenHeader";
 import { getDateTitle } from "../../src/lib/dates";
 import { useAppState } from "../../src/state/AppState";
-import { colors, fonts, shadow } from "../../src/theme";
+import { colors, fonts, radii, shadowLifted, shadowSoft, surfaces } from "../../src/theme";
 
 export default function FeedScreen() {
   const {
@@ -236,22 +236,23 @@ export default function FeedScreen() {
 
 const styles = StyleSheet.create({
   feedList: {
-    gap: 14,
+    gap: 16,
   },
   feedCard: {
     flexDirection: "row",
-    gap: 14,
-    padding: 14,
+    gap: 16,
+    padding: 16,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 20,
-    backgroundColor: "#FFFDF8",
-    ...shadow,
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.lg,
+    backgroundColor: surfaces.card,
+    ...shadowSoft,
   },
   feedChip: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
+    width: 56,
+    height: 72,
+    borderRadius: radii.md,
+    ...shadowSoft,
   },
   feedCopy: {
     flex: 1,
@@ -298,9 +299,11 @@ const styles = StyleSheet.create({
     minHeight: 48,
     justifyContent: "center",
     marginTop: 8,
-    paddingHorizontal: 12,
-    borderRadius: 999,
-    backgroundColor: colors.surfaceMuted,
+    paddingHorizontal: 14,
+    borderWidth: 1,
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.md,
+    backgroundColor: surfaces.cardMuted,
   },
   replyButtonText: {
     color: colors.inkSubtle,
@@ -311,9 +314,10 @@ const styles = StyleSheet.create({
     gap: 8,
     padding: 18,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 20,
-    backgroundColor: "#FFFDF8",
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.lg,
+    backgroundColor: surfaces.card,
+    ...shadowSoft,
   },
   loadingState: {
     minHeight: 96,
@@ -345,8 +349,11 @@ const styles = StyleSheet.create({
   modalPanel: {
     maxHeight: "88%",
     padding: 18,
-    borderRadius: 22,
+    borderWidth: 1,
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.xl,
     backgroundColor: colors.paperElevated,
+    ...shadowLifted,
   },
   modalTitle: {
     color: colors.ink,
@@ -378,9 +385,9 @@ const styles = StyleSheet.create({
     gap: 6,
     padding: 8,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 14,
-    backgroundColor: "#FFFDF8",
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.md,
+    backgroundColor: surfaces.card,
   },
   modalColorChoiceSelected: {
     borderColor: colors.ink,
@@ -406,7 +413,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 12,
-    borderRadius: 999,
+    borderRadius: radii.md,
     backgroundColor: colors.surfaceMuted,
   },
   modalCancelDisabled: {

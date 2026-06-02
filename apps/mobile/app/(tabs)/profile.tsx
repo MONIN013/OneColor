@@ -6,7 +6,7 @@ import { ErrorBanner } from "../../src/components/ErrorBanner";
 import { Screen } from "../../src/components/Screen";
 import { ScreenHeader } from "../../src/components/ScreenHeader";
 import { useAppState } from "../../src/state/AppState";
-import { colors, fonts, shadow } from "../../src/theme";
+import { colors, fonts, radii, shadowLifted, shadowSoft, surfaces } from "../../src/theme";
 
 export default function ProfileScreen() {
   const {
@@ -81,24 +81,25 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 16,
     marginTop: 12,
-    padding: 16,
+    padding: 18,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 22,
-    backgroundColor: "#FFFDF8",
-    ...shadow,
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.xl,
+    backgroundColor: surfaces.card,
+    ...shadowLifted,
   },
   profileColor: {
-    width: 72,
-    height: 88,
+    width: 78,
+    height: 96,
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
-    borderRadius: 22,
+    borderRadius: radii.lg,
+    ...shadowSoft,
   },
   emptyProfileColor: {
     borderWidth: 1,
-    borderColor: colors.line,
+    borderColor: surfaces.lineStrong,
     backgroundColor: colors.surfaceMuted,
   },
   profileColorName: {
@@ -132,9 +133,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 6,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 18,
-    backgroundColor: "#FFFDF8",
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.lg,
+    backgroundColor: surfaces.cardMuted,
   },
   statValue: {
     color: colors.ink,

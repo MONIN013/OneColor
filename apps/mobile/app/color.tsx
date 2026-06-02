@@ -8,7 +8,7 @@ import { Screen } from "../src/components/Screen";
 import { ScreenHeader } from "../src/components/ScreenHeader";
 import { getDateTitle } from "../src/lib/dates";
 import { useAppState } from "../src/state/AppState";
-import { colors, fonts, shadow } from "../src/theme";
+import { colors, fonts, radii, shadowLifted, shadowSoft, surfaces } from "../src/theme";
 
 export default function ColorScreen() {
   const {
@@ -24,6 +24,7 @@ export default function ColorScreen() {
     todayId,
   } = useAppState();
   const words = completeWords ?? draft.words;
+  const selectedTextColor = selectedColor.recommendedText;
 
   const save = async () => {
     const ok = await saveDraft();
@@ -68,24 +69,32 @@ export default function ColorScreen() {
       <ScreenHeader eyebrow={getDateTitle(draft.date)} title="この日に色を置く" />
       <ErrorBanner message={entriesStatus.error} onRetry={refreshEntries} />
 
-      <View style={styles.selectedPreview}>
-        <View style={[styles.largeChip, { backgroundColor: selectedColor.hex }]} />
+      <View style={[styles.selectedPreview, { backgroundColor: selectedColor.hex }]}>
+        <View
+          style={[
+            styles.largeChip,
+            { backgroundColor: selectedTextColor, borderColor: selectedTextColor },
+          ]}
+        />
         <View style={styles.previewCopy}>
           <Text
             adjustsFontSizeToFit
             minimumFontScale={0.72}
             numberOfLines={1}
-            style={styles.previewWords}
+            style={[styles.previewWords, { color: selectedTextColor }]}
           >
             {formatWords(words)}
           </Text>
-          <Text style={styles.previewMeta}>選択中: {selectedColor.name}</Text>
+          <Text style={[styles.previewMeta, { color: selectedTextColor }]}>
+            選択中: {selectedColor.name}
+          </Text>
         </View>
       </View>
 
       <View style={styles.palettePanel}>
         <View style={styles.panelTitle}>
           <Text style={styles.panelTitleText}>色の地図</Text>
+          <Text style={styles.panelTitleMeta}>24色固定</Text>
         </View>
         <View accessibilityLabel="24色パレット" style={styles.paletteGrid}>
           {palette.map((color) => {
@@ -127,17 +136,18 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    padding: 16,
+    padding: 18,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 22,
-    backgroundColor: "#FFFDF8",
-    ...shadow,
+    borderColor: "rgba(41,36,31,0.12)",
+    borderRadius: radii.xl,
+    ...shadowLifted,
   },
   largeChip: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 64,
+    height: 64,
+    borderRadius: radii.md,
+    borderWidth: 1,
+    opacity: 0.26,
   },
   previewCopy: {
     flex: 1,
@@ -159,9 +169,10 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     padding: 18,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 24,
-    backgroundColor: colors.surfaceMuted,
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.xl,
+    backgroundColor: surfaces.wash,
+    ...shadowSoft,
   },
   panelTitle: {
     flexDirection: "row",
@@ -173,6 +184,11 @@ const styles = StyleSheet.create({
     flex: 1,
     color: colors.ink,
     fontFamily: fonts.sansHeavy,
+  },
+  panelTitleMeta: {
+    color: colors.inkSubtle,
+    fontFamily: fonts.sansBold,
+    fontSize: 11,
   },
   paletteGrid: {
     flexDirection: "row",
@@ -187,13 +203,14 @@ const styles = StyleSheet.create({
     gap: 7,
     borderWidth: 1,
     borderColor: "transparent",
-    borderRadius: 14,
+    borderRadius: radii.md,
     backgroundColor: "rgba(255,253,248,0.55)",
     padding: 6,
   },
   paletteChoiceSelected: {
     borderColor: colors.ink,
-    backgroundColor: "#FFFDF8",
+    backgroundColor: surfaces.card,
+    ...shadowSoft,
   },
   paletteDot: {
     width: 24,
@@ -216,9 +233,9 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: colors.line,
+    borderColor: surfaces.lineStrong,
     borderRadius: 999,
-    backgroundColor: "#FFFDF8",
+    backgroundColor: surfaces.card,
   },
   miniDot: {
     width: 20,

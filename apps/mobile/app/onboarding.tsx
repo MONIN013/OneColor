@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from "react-native";
 import { AppButton } from "../src/components/AppButton";
 import { Screen } from "../src/components/Screen";
 import { useAppState } from "../src/state/AppState";
-import { colors, fonts, shadow } from "../src/theme";
+import { colors, fonts, radii, shadowLifted, shadowSoft, surfaces } from "../src/theme";
 
 export default function OnboardingScreen() {
   const { markOnboardingSeen } = useAppState();
@@ -16,7 +16,7 @@ export default function OnboardingScreen() {
 
   const skip = async () => {
     await markOnboardingSeen();
-    router.replace("/(tabs)/day");
+    router.replace("/(tabs)/calendar");
   };
 
   return (
@@ -87,10 +87,11 @@ const styles = StyleSheet.create({
     paddingTop: 18,
     paddingBottom: 20,
     borderWidth: 1,
-    borderColor: colors.line,
-    borderRadius: 28,
-    backgroundColor: colors.surfaceMuted,
+    borderColor: surfaces.lineStrong,
+    borderRadius: radii.xl,
+    backgroundColor: surfaces.wash,
     marginBottom: 34,
+    ...shadowLifted,
   },
   specimenStage: {
     height: 150,
@@ -100,7 +101,7 @@ const styles = StyleSheet.create({
   paperSwatch: {
     position: "absolute",
     borderRadius: 20,
-    ...shadow,
+    ...shadowSoft,
   },
   swatchBlue: {
     top: 10,
@@ -108,6 +109,7 @@ const styles = StyleSheet.create({
     width: 96,
     height: 112,
     backgroundColor: "#5F7E96",
+    transform: [{ rotate: "-1deg" }],
   },
   swatchOrange: {
     top: 36,
@@ -115,6 +117,7 @@ const styles = StyleSheet.create({
     width: 104,
     height: 110,
     backgroundColor: "#D69A5C",
+    transform: [{ rotate: "2deg" }],
   },
   swatchGreen: {
     top: 8,
@@ -122,6 +125,7 @@ const styles = StyleSheet.create({
     width: 78,
     height: 94,
     backgroundColor: "#405650",
+    transform: [{ rotate: "1deg" }],
   },
   specimenCaption: {
     gap: 4,

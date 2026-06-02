@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, fonts } from "../theme";
+import { colors, fonts, radii, surfaces } from "../theme";
 
 type ErrorBannerProps = {
   message?: string | null;
@@ -29,15 +29,18 @@ export function ErrorBanner({ message, onRetry }: ErrorBannerProps) {
 
 const styles = StyleSheet.create({
   banner: {
+    flexDirection: "row",
+    alignItems: "center",
     borderWidth: 1,
     borderColor: "#D8B1A0",
-    borderRadius: 16,
-    backgroundColor: "#FFF5EF",
-    padding: 12,
+    borderRadius: radii.md,
+    backgroundColor: "#FFF4EC",
+    padding: 14,
     marginBottom: 14,
     gap: 10,
   },
   message: {
+    flex: 1,
     color: colors.dangerSoft,
     fontFamily: fonts.sansBold,
     fontSize: 12,
@@ -45,11 +48,11 @@ const styles = StyleSheet.create({
   },
   retry: {
     alignSelf: "flex-start",
-    minHeight: 48,
+    minHeight: 44,
     justifyContent: "center",
-    borderRadius: 999,
-    paddingHorizontal: 16,
-    backgroundColor: colors.surfaceMuted,
+    borderRadius: radii.md,
+    paddingHorizontal: 14,
+    backgroundColor: surfaces.cardMuted,
   },
   retryLabel: {
     color: colors.ink,

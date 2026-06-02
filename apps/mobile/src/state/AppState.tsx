@@ -102,8 +102,13 @@ const createDraft = (date: string): Draft => ({
   words: ["", "", ""],
 });
 
-const getErrorMessage = (error: unknown, fallback: string) =>
-  error instanceof Error ? error.message : fallback;
+const getErrorMessage = (error: unknown, fallback: string) => {
+  if (!(error instanceof Error)) {
+    return fallback;
+  }
+
+  return error.message === "Failed to fetch" ? fallback : error.message;
+};
 
 const normalizeDateId = (value: unknown, fallback: string) =>
   typeof value === "string" && dateIdPattern.test(value) ? value : fallback;
