@@ -38,9 +38,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="near"
+        name="feed"
         options={{
-          title: "似た日",
+          title: "みんなの日",
           tabBarIcon: ({ color, size }) => <Compass color={color} size={size} />,
         }}
       />

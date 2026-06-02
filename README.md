@@ -6,7 +6,7 @@ Expo React Native app plus NestJS API for recording a day as three words and one
 
 - `apps/mobile`: Expo SDK 56, Expo Router, React Native UI
 - `apps/api`: NestJS REST API, Prisma, SQLite
-- `packages/shared`: shared palette, sample data, and API-facing TypeScript types
+- `packages/shared`: shared palette and API-facing TypeScript types
 
 ## Setup
 

@@ -1,18 +1,32 @@
 import { Leaf } from "lucide-react-native";
+import { useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { formatWords } from "@onecolor/shared";
+import { ErrorBanner } from "../../src/components/ErrorBanner";
 import { Screen } from "../../src/components/Screen";
 import { ScreenHeader } from "../../src/components/ScreenHeader";
 import { useAppState } from "../../src/state/AppState";
 import { colors, fonts, shadow } from "../../src/theme";
 
 export default function ProfileScreen() {
-  const { colors: palette, entries, getEntry, todayId } = useAppState();
+  const {
+    colors: palette,
+    getEntry,
+    profileStats,
+    profileStatsStatus,
+    refreshProfileStats,
+    todayId,
+  } = useAppState();
   const entry = getEntry(todayId);
 
+  useEffect(() => {
+    refreshProfileStats();
+  }, [refreshProfileStats]);
+
   return (
-    <Screen>
+    <Screen onRefresh={refreshProfileStats} refreshing={profileStatsStatus.loading}>
       <ScreenHeader title="プロフィール" />
+      <ErrorBanner message={profileStatsStatus.error} onRetry={refreshProfileStats} />
 
       <View style={styles.profileCard}>
         <View
@@ -45,8 +59,8 @@ export default function ProfileScreen() {
 
       <View style={styles.profileStats}>
         <Stat value={String(palette.length)} label="色" />
-        <Stat value={String(entries.length)} label="記録" />
-        <Stat value={String(entries.length * 3)} label="語" />
+        <Stat value={String(profileStats.totalEntries)} label="記録" />
+        <Stat value={String(profileStats.totalWords)} label="語" />
       </View>
     </Screen>
   );

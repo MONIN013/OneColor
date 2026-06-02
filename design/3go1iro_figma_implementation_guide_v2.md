@@ -73,7 +73,7 @@ Figma内では以下のページに分ける。
 - Post filled / CTA → Color selection
 - Color selection CTA → Calendar
 - Calendar cell tap → Day detail
-- Day detail `色で返す` → Near days reply modal
+- `みんなの日` card `色を返す` → reply modal
 
 ## 6. QA checklist
 

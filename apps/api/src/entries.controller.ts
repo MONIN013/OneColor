@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Headers, Inject, Param, Put, Query } from "@nestjs/common";
-import type { ColorReactionResponse, ColorReactionsResponse, PaletteResponse } from "@onecolor/shared";
+import type { ColorReactionResponse, ColorReactionsResponse, FeedResponse, PaletteResponse, ProfileStatsResponse } from "@onecolor/shared";
 import { dayPalette } from "@onecolor/shared";
-import { DateParamDto, EntriesQueryDto, EntryIdParamDto, NearDaysQueryDto, SaveColorReactionDto, SaveEntryDto, assertAnonymousUserId } from "./dto.ts";
+import { DateParamDto, EntriesQueryDto, EntryIdParamDto, FeedQueryDto, SaveColorReactionDto, SaveEntryDto, assertAnonymousUserId } from "./dto.ts";
 import { EntriesService } from "./entries.service.ts";
 
 @Controller()
@@ -16,6 +16,13 @@ export class EntriesController {
   ): Promise<PaletteResponse> {
     await this.entriesService.ensureUser(assertAnonymousUserId(userId));
     return { colors: dayPalette };
+  }
+
+  @Get("profile/stats")
+  profileStats(
+    @Headers("x-anonymous-user-id") userId: string | undefined,
+  ): Promise<ProfileStatsResponse> {
+    return this.entriesService.profileStats(assertAnonymousUserId(userId));
   }
 
   @Get("entries")
@@ -60,11 +67,11 @@ export class EntriesController {
     return this.entriesService.returnColor(assertAnonymousUserId(userId), params.entryId, body);
   }
 
-  @Get("near-days")
-  nearDays(
+  @Get("feed")
+  feed(
     @Headers("x-anonymous-user-id") userId: string | undefined,
-    @Query() query: NearDaysQueryDto,
-  ) {
-    return this.entriesService.nearDays(assertAnonymousUserId(userId), query.date, query.mode);
+    @Query() query: FeedQueryDto,
+  ): Promise<FeedResponse> {
+    return this.entriesService.feed(assertAnonymousUserId(userId), query.limit);
   }
 }

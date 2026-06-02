@@ -38,16 +38,47 @@ export default function ColorScreen() {
       }
     }
   };
+  const footer = (
+    <View style={styles.footerStack}>
+      <ErrorBanner message={saveStatus.error} />
+      <View style={styles.buttonRow}>
+        <AppButton
+          icon={<RotateCcw color={colors.ink} size={17} />}
+          kind="secondary"
+          onPress={() => router.back()}
+          style={styles.secondaryButton}
+        >
+          戻る
+        </AppButton>
+        <AppButton
+          busy={saveStatus.loading}
+          disabled={!completeWords}
+          icon={<Check color={colors.paperElevated} size={18} />}
+          onPress={save}
+          style={styles.primaryButton}
+        >
+          この日を残す
+        </AppButton>
+      </View>
+    </View>
+  );
 
   return (
-    <Screen onRefresh={refreshEntries} refreshing={entriesStatus.loading}>
+    <Screen footer={footer} onRefresh={refreshEntries} refreshing={entriesStatus.loading}>
       <ScreenHeader eyebrow={getDateTitle(draft.date)} title="この日に色を置く" />
       <ErrorBanner message={entriesStatus.error} onRetry={refreshEntries} />
 
       <View style={styles.selectedPreview}>
         <View style={[styles.largeChip, { backgroundColor: selectedColor.hex }]} />
         <View style={styles.previewCopy}>
-          <Text style={styles.previewWords}>{formatWords(words)}</Text>
+          <Text
+            adjustsFontSizeToFit
+            minimumFontScale={0.72}
+            numberOfLines={1}
+            style={styles.previewWords}
+          >
+            {formatWords(words)}
+          </Text>
           <Text style={styles.previewMeta}>選択中: {selectedColor.name}</Text>
         </View>
       </View>
@@ -69,7 +100,14 @@ export default function ColorScreen() {
                 style={[styles.paletteChoice, selected && styles.paletteChoiceSelected]}
               >
                 <View style={[styles.paletteDot, { backgroundColor: color.hex }]} />
-                <Text style={styles.paletteName}>{color.name}</Text>
+                <Text
+                  adjustsFontSizeToFit
+                  minimumFontScale={0.74}
+                  numberOfLines={1}
+                  style={styles.paletteName}
+                >
+                  {color.name}
+                </Text>
               </Pressable>
             );
           })}
@@ -80,27 +118,6 @@ export default function ColorScreen() {
         <View style={[styles.miniDot, { backgroundColor: selectedColor.hex }]} />
         <Text style={styles.selectedStripText}>選択中: {selectedColor.name}</Text>
       </View>
-
-      <View style={styles.buttonRow}>
-        <AppButton
-          icon={<RotateCcw color={colors.ink} size={17} />}
-          kind="secondary"
-          onPress={() => router.back()}
-          style={styles.secondaryButton}
-        >
-          戻る
-        </AppButton>
-        <AppButton
-          busy={saveStatus.loading}
-          disabled={!completeWords}
-          icon={<Check color={colors.paperElevated} size={18} />}
-          onPress={save}
-          style={styles.primaryButton}
-        >
-          この日を残す
-        </AppButton>
-      </View>
-      <ErrorBanner message={saveStatus.error} />
     </Screen>
   );
 }
@@ -124,6 +141,7 @@ const styles = StyleSheet.create({
   },
   previewCopy: {
     flex: 1,
+    minWidth: 0,
   },
   previewWords: {
     color: colors.ink,
@@ -213,10 +231,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sansHeavy,
     fontSize: 13,
   },
+  footerStack: {
+    gap: 10,
+  },
   buttonRow: {
     flexDirection: "row",
     gap: 10,
-    marginTop: 16,
   },
   secondaryButton: {
     flex: 0.58,

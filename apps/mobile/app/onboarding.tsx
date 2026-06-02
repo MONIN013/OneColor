@@ -27,17 +27,28 @@ export default function OnboardingScreen() {
       </View>
 
       <View accessibilityLabel="雨 改札 嘘 遠い青" style={styles.specimenHero}>
-        <View style={[styles.paperSwatch, styles.swatchBlue]} />
-        <View style={[styles.paperSwatch, styles.swatchOrange]} />
-        <View style={[styles.paperSwatch, styles.swatchGreen]} />
+        <View style={styles.specimenStage}>
+          <View style={[styles.paperSwatch, styles.swatchBlue]} />
+          <View style={[styles.paperSwatch, styles.swatchOrange]} />
+          <View style={[styles.paperSwatch, styles.swatchGreen]} />
+        </View>
         <View style={styles.specimenCaption}>
-          <Text style={styles.specimenWords}>雨 / 改札 / 嘘</Text>
+          <Text
+            adjustsFontSizeToFit
+            minimumFontScale={0.76}
+            numberOfLines={1}
+            style={styles.specimenWords}
+          >
+            雨 / 改札 / 嘘
+          </Text>
           <Text style={styles.specimenColor}>遠い青</Text>
         </View>
       </View>
 
       <View style={styles.titleBlock}>
-        <Text style={styles.title}>今日を、{"\n"}三つのことばと{"\n"}一つの色で。</Text>
+        <Text maxFontSizeMultiplier={1.14} style={styles.title}>
+          今日を、{"\n"}三つのことばと{"\n"}一つの色で。
+        </Text>
       </View>
 
       <AppButton
@@ -70,13 +81,21 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   specimenHero: {
-    minHeight: 206,
+    minHeight: 238,
     overflow: "hidden",
+    paddingHorizontal: 24,
+    paddingTop: 18,
+    paddingBottom: 20,
     borderWidth: 1,
     borderColor: colors.line,
     borderRadius: 28,
     backgroundColor: colors.surfaceMuted,
     marginBottom: 34,
+  },
+  specimenStage: {
+    height: 150,
+    position: "relative",
+    marginBottom: 12,
   },
   paperSwatch: {
     position: "absolute",
@@ -84,42 +103,41 @@ const styles = StyleSheet.create({
     ...shadow,
   },
   swatchBlue: {
-    top: 20,
-    left: 24,
-    width: 86,
-    height: 92,
+    top: 10,
+    left: 4,
+    width: 96,
+    height: 112,
     backgroundColor: "#5F7E96",
   },
   swatchOrange: {
     top: 36,
-    left: 86,
-    width: 86,
-    height: 88,
+    left: 84,
+    width: 104,
+    height: 110,
     backgroundColor: "#D69A5C",
   },
   swatchGreen: {
-    top: 20,
-    right: 24,
-    width: 62,
-    height: 76,
+    top: 8,
+    right: 2,
+    width: 78,
+    height: 94,
     backgroundColor: "#405650",
   },
   specimenCaption: {
-    position: "absolute",
-    left: 28,
-    bottom: 20,
     gap: 4,
+    paddingRight: 18,
   },
   specimenWords: {
     color: colors.ink,
     fontFamily: fonts.serifHeavy,
-    fontSize: 22,
-    lineHeight: 30,
+    fontSize: 24,
+    lineHeight: 32,
   },
   specimenColor: {
     color: colors.inkSubtle,
     fontFamily: fonts.sansBold,
-    fontSize: 12,
+    fontSize: 13,
+    lineHeight: 20,
   },
   titleBlock: {
     marginBottom: 24,

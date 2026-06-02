@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react-native";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import { formatWords } from "@onecolor/shared";
 import { ErrorBanner } from "../../src/components/ErrorBanner";
 import { Screen } from "../../src/components/Screen";
@@ -22,7 +22,11 @@ export default function CalendarScreen() {
     setSelectedDate,
     todayId,
   } = useAppState();
+  const { width } = useWindowDimensions();
   const { firstDayOffset, days } = getMonthDays(currentMonth);
+  const calendarWidth = Math.min(width * 0.9, 350);
+  const cellSize = Math.floor(calendarWidth / 7);
+  const horizontalHitSlop = Math.max(0, (48 - cellSize) / 2);
   const visibleSelectedDate = selectedDate.startsWith(`${currentMonth}-`)
     ? selectedDate
     : `${currentMonth}-01`;
@@ -72,9 +76,15 @@ export default function CalendarScreen() {
         ))}
       </View>
 
-      <View accessibilityLabel={`${monthName} ${year}`} style={styles.calendarGrid}>
+      <View
+        accessibilityLabel={`${monthName} ${year}`}
+        style={[styles.calendarGrid, { width: calendarWidth }]}
+      >
         {Array.from({ length: firstDayOffset }, (_, index) => (
-          <View key={`blank-${index}`} style={[styles.calendarCell, styles.blankCell]} />
+          <View
+            key={`blank-${index}`}
+            style={[styles.calendarCell, { width: cellSize }, styles.blankCell]}
+          />
         ))}
         {days.map((day) => {
           const date = dateIdForDay(currentMonth, day);
@@ -95,10 +105,12 @@ export default function CalendarScreen() {
               }
               accessibilityRole="button"
               accessibilityState={{ selected }}
+              hitSlop={{ left: horizontalHitSlop, right: horizontalHitSlop }}
               key={date}
               onPress={() => openDay(date)}
               style={[
                 styles.calendarCell,
+                { width: cellSize },
                 entry ? styles.filledCell : styles.emptyCell,
                 entry ? { backgroundColor: entry.colorHex } : null,
                 isToday && styles.todayCell,
@@ -189,11 +201,10 @@ const styles = StyleSheet.create({
   calendarGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 4,
+    alignSelf: "center",
   },
   calendarCell: {
-    width: "13.85%",
-    minHeight: 44,
+    minHeight: 48,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,

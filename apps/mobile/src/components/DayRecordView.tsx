@@ -18,19 +18,30 @@ type DayRecordViewProps = {
 
 export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
   const {
-    entriesByDate,
     entriesStatus,
+    discardPendingEntry,
     getEntry,
+    getEntryStatus,
+    getPendingEntry,
+    getPersistedEntry,
     getReturnedColors,
     getReturnedColorStatus,
     refreshEntries,
+    refreshEntry,
     refreshReturnedColors,
     resetDraft,
+    retryPendingEntry,
   } = useAppState();
   const entry = getEntry(date);
-  const savedEntry = entriesByDate.get(date);
+  const savedEntry = getPersistedEntry(date);
+  const pendingEntry = getPendingEntry(date);
+  const entryStatus = getEntryStatus(date);
   const returnedColors = getReturnedColors(date);
   const returnedColorStatus = getReturnedColorStatus(date);
+
+  useEffect(() => {
+    refreshEntry(date);
+  }, [date, refreshEntry]);
 
   useEffect(() => {
     if (savedEntry) {
@@ -49,25 +60,45 @@ export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
       params: isToday ? { returnToDay: "1" } : { returnToDate: date },
     });
   };
+  const refresh = () => {
+    refreshEntry(date);
+    refreshEntries();
+  };
 
   return (
-    <Screen onRefresh={refreshEntries} refreshing={entriesStatus.loading}>
+    <Screen onRefresh={refresh} refreshing={entriesStatus.loading || entryStatus.loading}>
       <ScreenHeader
         eyebrow={getDateTitle(date)}
         title={isToday ? "今日の記録" : "この日の記録"}
       />
-      <ErrorBanner message={entriesStatus.error} onRetry={refreshEntries} />
+      <ErrorBanner
+        message={entryStatus.error ?? entriesStatus.error}
+        onRetry={refresh}
+      />
+
+      {entryStatus.loading && !entry ? (
+        <View accessibilityLabel="この日の記録を読み込み中" style={styles.loadingState}>
+          <ActivityIndicator color={colors.ink} />
+          <Text style={styles.replyLoadingText}>読み込み中</Text>
+        </View>
+      ) : null}
 
       {entry ? (
         <View
           accessibilityLabel={`${entry.colorName} ${formatWords(entry.words)}`}
           style={[styles.dayCard, { backgroundColor: entry.colorHex }]}
         >
-          <Text style={[styles.cardColor, { color: entry.textColor }]}>
+          <Text numberOfLines={1} style={[styles.cardColor, { color: entry.textColor }]}>
             {entry.colorName}
           </Text>
           {entry.words.map((word, index) => (
-            <Text key={`${word}-${index}`} style={[styles.cardWord, { color: entry.textColor }]}>
+            <Text
+              adjustsFontSizeToFit
+              key={`${word}-${index}`}
+              minimumFontScale={0.68}
+              numberOfLines={1}
+              style={[styles.cardWord, { color: entry.textColor }]}
+            >
               {word}
             </Text>
           ))}
@@ -77,10 +108,64 @@ export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
           accessibilityLabel={`${getDateTitle(date)} まだ記録なし`}
           style={[styles.dayCard, styles.emptyDayCard]}
         >
-          <Text style={styles.emptyTitle}>まだ記録なし</Text>
+          <Text maxFontSizeMultiplier={1.2} style={styles.emptyTitle}>
+            まだ記録なし
+          </Text>
           <Text style={styles.emptyCopy}>三つのことばと一つの色を置けます。</Text>
         </View>
       )}
+
+      {pendingEntry ? (
+        <View style={styles.syncPanel}>
+          <Text style={styles.syncTitle}>
+            {pendingEntry.status === "conflict"
+              ? "未同期の変更があります"
+              : pendingEntry.status === "syncing"
+                ? "同期中"
+                : pendingEntry.status === "failed"
+                  ? "同期できていません"
+                  : "同期待ち"}
+          </Text>
+          <Text style={styles.syncText}>
+            {pendingEntry.status === "conflict"
+              ? "サーバー側の記録を表示しています。端末の変更はまだ残っています。"
+              : pendingEntry.lastError ?? "接続できると自動で同期します。"}
+          </Text>
+          {pendingEntry.status === "conflict" ? (
+            <View style={styles.syncActions}>
+              <AppButton
+                kind="secondary"
+                onPress={() => discardPendingEntry(date)}
+                style={styles.syncAction}
+              >
+                破棄
+              </AppButton>
+              <AppButton
+                onPress={() => retryPendingEntry(date, true)}
+                style={styles.syncAction}
+              >
+                上書き同期
+              </AppButton>
+            </View>
+          ) : pendingEntry.status === "failed" ? (
+            <View style={styles.syncActions}>
+              <AppButton
+                kind="secondary"
+                onPress={() => discardPendingEntry(date)}
+                style={styles.syncAction}
+              >
+                破棄
+              </AppButton>
+              <AppButton
+                onPress={() => retryPendingEntry(date)}
+                style={styles.syncAction}
+              >
+                再同期
+              </AppButton>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
 
       {savedEntry ? (
         <View accessibilityLabel="返ってきた色" style={styles.replySection}>
@@ -133,22 +218,34 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
+    paddingHorizontal: 28,
+    paddingVertical: 34,
     borderRadius: 34,
     ...shadow,
   },
+  loadingState: {
+    minHeight: 84,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+  },
   emptyDayCard: {
-    paddingHorizontal: 28,
     backgroundColor: colors.surfaceMuted,
   },
   cardColor: {
+    maxWidth: "100%",
     marginBottom: 18,
     fontFamily: fonts.sansHeavy,
     fontSize: 13,
+    lineHeight: 20,
+    textAlign: "center",
   },
   cardWord: {
+    maxWidth: "100%",
     fontFamily: fonts.serifHeavy,
     fontSize: 42,
     lineHeight: 52,
+    textAlign: "center",
   },
   emptyTitle: {
     color: colors.ink,
@@ -216,6 +313,35 @@ const styles = StyleSheet.create({
     color: colors.ink,
     fontFamily: fonts.sansHeavy,
     fontSize: 12,
+  },
+  syncPanel: {
+    gap: 8,
+    marginTop: 14,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: colors.line,
+    borderRadius: 18,
+    backgroundColor: "#FFFDF8",
+  },
+  syncTitle: {
+    color: colors.ink,
+    fontFamily: fonts.sansHeavy,
+    fontSize: 13,
+  },
+  syncText: {
+    color: colors.inkSubtle,
+    fontFamily: fonts.sansBold,
+    fontSize: 12,
+    lineHeight: 19,
+  },
+  syncActions: {
+    flexDirection: "row",
+    gap: 8,
+    marginTop: 4,
+  },
+  syncAction: {
+    flex: 1,
+    paddingHorizontal: 10,
   },
   postButton: {
     marginTop: 16,

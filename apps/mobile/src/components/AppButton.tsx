@@ -39,7 +39,12 @@ export function AppButton({
       ]}
     >
       {busy ? <ActivityIndicator color={indicatorColor} size="small" /> : icon}
-      <Text style={[styles.label, isPrimary ? styles.primaryLabel : styles.secondaryLabel]}>
+      <Text
+        adjustsFontSizeToFit
+        minimumFontScale={0.82}
+        numberOfLines={1}
+        style={[styles.label, isPrimary ? styles.primaryLabel : styles.secondaryLabel]}
+      >
         {children}
       </Text>
     </Pressable>
@@ -71,8 +76,11 @@ const styles = StyleSheet.create({
     opacity: 0.74,
   },
   label: {
+    flexShrink: 1,
     fontFamily: fonts.sansHeavy,
     fontSize: 14,
+    lineHeight: 20,
+    textAlign: "center",
   },
   primaryLabel: {
     color: colors.paperElevated,

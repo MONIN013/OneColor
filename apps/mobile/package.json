@@ -9,6 +9,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "expo:doctor": "expo-doctor"
   },
   "dependencies": {
@@ -37,6 +38,7 @@
   "devDependencies": {
     "@types/react": "^19.2.7",
     "expo-doctor": "^1.17.11",
+    "vitest": "^4.0.14",
     "typescript": "~6.0.3"
   }
 }

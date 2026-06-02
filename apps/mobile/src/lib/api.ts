@@ -4,9 +4,9 @@ import type {
   ColorReactionsResponse,
   EntriesResponse,
   EntryResponse,
-  NearDaysResponse,
-  NearMode,
+  FeedResponse,
   PaletteResponse,
+  ProfileStatsResponse,
   SaveColorReactionRequest,
   SaveEntryRequest,
 } from "@onecolor/shared";
@@ -23,6 +23,7 @@ export class ApiRequestError extends Error {
   constructor(
     message: string,
     readonly status?: number,
+    readonly body?: unknown,
   ) {
     super(message);
   }
@@ -45,15 +46,17 @@ async function request<T>(
 
   if (!response.ok) {
     let message = `API request failed (${response.status})`;
+    let body: unknown;
     try {
-      const body = await response.json();
-      message = Array.isArray(body.message)
-        ? body.message.join("\n")
-        : body.message ?? message;
+      body = await response.json();
+      const responseBody = body as { message?: string | string[] };
+      message = Array.isArray(responseBody.message)
+        ? responseBody.message.join("\n")
+        : responseBody.message ?? message;
     } catch {
       // Keep the status-based message when the response body is not JSON.
     }
-    throw new ApiRequestError(message, response.status);
+    throw new ApiRequestError(message, response.status, body);
   }
 
   return response.json() as Promise<T>;
@@ -61,6 +64,8 @@ async function request<T>(
 
 export const api = {
   palette: (userId: string) => request<PaletteResponse>("/palette", userId),
+  profileStats: (userId: string) =>
+    request<ProfileStatsResponse>("/profile/stats", userId),
   entries: (userId: string, month: string) =>
     request<EntriesResponse>(`/entries?month=${encodeURIComponent(month)}`, userId),
   entry: (userId: string, date: string) =>
@@ -84,9 +89,5 @@ export const api = {
         body: JSON.stringify(body),
       },
     ),
-  nearDays: (userId: string, date: string, mode: NearMode) =>
-    request<NearDaysResponse>(
-      `/near-days?date=${encodeURIComponent(date)}&mode=${mode}`,
-      userId,
-    ),
+  feed: (userId: string) => request<FeedResponse>("/feed", userId),
 };

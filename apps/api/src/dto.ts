@@ -1,7 +1,6 @@
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsIn, IsNotEmpty, IsOptional, IsString, IsUUID, MaxLength, ValidateBy, validateSync } from "class-validator";
-import { plainToInstance } from "class-transformer";
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsISO8601, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Max, MaxLength, Min, ValidateBy, validateSync } from "class-validator";
+import { Type, plainToInstance } from "class-transformer";
 import { BadRequestException } from "@nestjs/common";
-import type { NearMode } from "@onecolor/shared";
 
 const dateIdPattern = /^\d{4}-\d{2}-\d{2}$/;
 const monthIdPattern = /^\d{4}-\d{2}$/;
@@ -78,13 +77,13 @@ export class EntriesQueryDto {
   month!: string;
 }
 
-export class NearDaysQueryDto {
-  @IsDateId()
-  date!: string;
-
+export class FeedQueryDto {
   @IsOptional()
-  @IsIn(["color", "words"])
-  mode: NearMode = "color";
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(50)
+  limit: number = 20;
 }
 
 export class SaveEntryDto {
@@ -99,6 +98,15 @@ export class SaveEntryDto {
   @IsString()
   @IsNotEmpty()
   colorName!: string;
+
+  @IsOptional()
+  @IsISO8601()
+  baseUpdatedAt?: string | null;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(80)
+  clientMutationId?: string;
 }
 
 export class SaveColorReactionDto {

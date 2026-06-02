@@ -8,7 +8,20 @@ const userC = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
 const userD = "dddddddd-dddd-4ddd-8ddd-dddddddddddd";
 const userE = "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee";
 const userF = "ffffffff-ffff-4fff-8fff-ffffffffffff";
+const userG = "11111111-1111-4111-8111-111111111111";
+const userH = "22222222-2222-4222-8222-222222222222";
+const userI = "33333333-3333-4333-8333-333333333333";
 const missingEntryId = "99999999-9999-4999-8999-999999999999";
+
+type FeedTestItem = {
+  colorName: string;
+  createdAt: string;
+  entryId: string;
+  returnedColor?: {
+    colorName: string;
+  };
+  words: string[];
+};
 
 describe("OneColor API", () => {
   let app: Awaited<ReturnType<typeof createApp>>;
@@ -18,19 +31,25 @@ describe("OneColor API", () => {
     date: string,
     words: [string, string, string],
     colorName: string,
+    extra: Record<string, unknown> = {},
   ) =>
     request(app.getHttpServer())
       .put(`/entries/${date}`)
       .set("X-Anonymous-User-Id", userId)
-      .send({ words, colorName });
+      .send({ words, colorName, ...extra });
 
-  const seedNearEntries = async () => {
+  const seedFeedEntries = async () => {
     await saveEntry(userA, "2026-05-29", ["雨", "改札", "旅"], "遠い青").expect(200);
     await saveEntry(userA, "2026-05-30", ["雨", "改札", "自分"], "遠い青").expect(200);
     await saveEntry(userD, "2026-05-30", ["雨", "駅", "朝"], "遠い青").expect(200);
     await saveEntry(userE, "2026-05-31", ["雨", "改札", "午後"], "熱の赤").expect(200);
     await saveEntry(userF, "2026-05-27", ["本", "机", "犬"], "遠い青").expect(200);
   };
+
+  const findFeedItem = (
+    entries: FeedTestItem[],
+    words: string,
+  ) => entries.find((item) => item.words.join("/") === words);
 
   beforeAll(async () => {
     app = await createApp();
@@ -104,7 +123,7 @@ describe("OneColor API", () => {
       .expect(400);
 
     await request(app.getHttpServer())
-      .get("/near-days?date=2026-02-30&mode=color")
+      .get("/feed?limit=0")
       .set("X-Anonymous-User-Id", userA)
       .expect(400);
   });
@@ -118,6 +137,9 @@ describe("OneColor API", () => {
       .expect(({ body }) => {
         expect(body.entry.words).toEqual(["雨", "改札", "旅"]);
         expect(body.entry.colorHex).toBe("#5F7E96");
+        expect(body.entry.id).toEqual(expect.any(String));
+        expect(body.entry.createdAt).toEqual(expect.any(String));
+        expect(body.entry.updatedAt).toEqual(expect.any(String));
       });
 
     await request(app.getHttpServer())
@@ -127,58 +149,119 @@ describe("OneColor API", () => {
       .expect(({ body }) => {
         const entry = body.entries.find((item: { date: string }) => item.date === "2026-05-29");
         expect(entry.words).toEqual(["雨", "改札", "旅"]);
+        expect(entry.id).toEqual(expect.any(String));
+        expect(entry.updatedAt).toEqual(expect.any(String));
       });
   });
 
-  it("returns no near days when the base day has not been saved", async () => {
+  it("returns profile stats across all saved months", async () => {
+    await saveEntry(userH, "2026-04-30", ["前", "月", "色"], "朝の白").expect(200);
+    await saveEntry(userH, "2026-06-01", ["次", "月", "色"], "雨の青").expect(200);
+
     await request(app.getHttpServer())
-      .get("/near-days?date=2026-05-29&mode=color")
+      .get("/profile/stats")
+      .set("X-Anonymous-User-Id", userH)
+      .expect(200)
+      .expect(({ body }) => {
+        expect(body.stats).toEqual({
+          totalEntries: 2,
+          totalWords: 6,
+        });
+      });
+  });
+
+  it("detects stale entry updates with baseUpdatedAt", async () => {
+    const firstSave = await saveEntry(
+      userI,
+      "2026-06-02",
+      ["朝", "川", "靴"],
+      "雨の青",
+    ).expect(200);
+    const baseUpdatedAt = firstSave.body.entry.updatedAt;
+
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    await saveEntry(userI, "2026-06-02", ["夜", "川", "靴"], "夜の紺", {
+      baseUpdatedAt,
+    }).expect(200);
+
+    await saveEntry(userI, "2026-06-02", ["古い", "川", "靴"], "古い紙", {
+      baseUpdatedAt,
+    })
+      .expect(409)
+      .expect(({ body }) => {
+        expect(body.message).toBe("Entry has changed on the server");
+        expect(body.entry.words).toEqual(["夜", "川", "靴"]);
+        expect(body.entry.updatedAt).not.toBe(baseUpdatedAt);
+      });
+  });
+
+  it("requires a saved entry before showing the public feed", async () => {
+    await request(app.getHttpServer())
+      .get("/feed")
       .set("X-Anonymous-User-Id", userC)
       .expect(200)
       .expect(({ body }) => {
-        expect(body.days).toEqual([]);
+        expect(body).toEqual({
+          entries: [],
+          requiresEntry: true,
+        });
       });
   });
 
-  it("finds near days from other anonymous users", async () => {
-    await seedNearEntries();
+  it("returns other anonymous users in the public feed", async () => {
+    await seedFeedEntries();
+    await saveEntry(userG, "2026-05-30", ["雨", "駅", "朝"], "遠い青").expect(200);
 
     await request(app.getHttpServer())
-      .get("/near-days?date=2026-05-29&mode=color")
+      .get("/feed")
       .set("X-Anonymous-User-Id", userA)
       .expect(200)
       .expect(({ body }) => {
-        expect(body.days[0].words).toEqual(["雨", "駅", "朝"]);
-        expect(body.days[0].closeness).toBe(100);
-        expect(body.days[0].entryId).toEqual(expect.any(String));
-        expect(
-          body.days.some((item: { words: string[] }) => item.words.join("/") === "雨/改札/自分"),
-        ).toBe(false);
+        expect(body.requiresEntry).toBe(false);
+        expect(findFeedItem(body.entries, "雨/改札/旅")).toBeUndefined();
+        expect(findFeedItem(body.entries, "雨/改札/自分")).toBeUndefined();
+        expect(findFeedItem(body.entries, "雨/駅/朝")).toEqual(
+          expect.objectContaining({
+            colorName: "遠い青",
+            createdAt: expect.any(String),
+            entryId: expect.any(String),
+          }),
+        );
+        expect(body.entries[0]).not.toHaveProperty("userId");
+        expect(body.entries[0]).not.toHaveProperty("closeness");
       });
 
     await request(app.getHttpServer())
-      .get("/near-days?date=2026-05-29&mode=words")
+      .get("/feed?limit=2")
       .set("X-Anonymous-User-Id", userA)
       .expect(200)
       .expect(({ body }) => {
-        expect(body.days[0].words).toEqual(["雨", "改札", "午後"]);
-        expect(body.days[0].closeness).toBe(67);
-        expect(
-          body.days.some((item: { words: string[] }) => item.words.join("/") === "本/机/犬"),
-        ).toBe(false);
+        expect(body.entries).toHaveLength(2);
+        const sortedEntries = [...body.entries].sort(
+          (
+            a: { createdAt: string; entryId: string },
+            b: { createdAt: string; entryId: string },
+          ) =>
+            b.createdAt.localeCompare(a.createdAt) ||
+            b.entryId.localeCompare(a.entryId),
+        );
+        expect(body.entries.map((item: { entryId: string }) => item.entryId)).toEqual(
+          sortedEntries.map((item: { entryId: string }) => item.entryId),
+        );
       });
   });
 
   it("saves and updates a returned color", async () => {
-    await seedNearEntries();
+    await seedFeedEntries();
 
-    const nearResponse = await request(app.getHttpServer())
-      .get("/near-days?date=2026-05-29&mode=color")
+    const feedResponse = await request(app.getHttpServer())
+      .get("/feed")
       .set("X-Anonymous-User-Id", userA)
       .expect(200);
-    const target = nearResponse.body.days.find(
-      (item: { words: string[] }) => item.words.join("/") === "雨/駅/朝",
-    );
+    const target = findFeedItem(feedResponse.body.entries, "雨/改札/午後");
+    if (!target) {
+      throw new Error("Expected feed target to exist");
+    }
 
     await request(app.getHttpServer())
       .put(`/entries/${target.entryId}/reactions/color`)
@@ -198,8 +281,8 @@ describe("OneColor API", () => {
       .expect(200);
 
     await request(app.getHttpServer())
-      .get("/entries/2026-05-30/reactions")
-      .set("X-Anonymous-User-Id", userD)
+      .get("/entries/2026-05-31/reactions")
+      .set("X-Anonymous-User-Id", userE)
       .expect(200)
       .expect(({ body }) => {
         expect(body.reactions).toHaveLength(1);
@@ -208,27 +291,26 @@ describe("OneColor API", () => {
       });
 
     await request(app.getHttpServer())
-      .get("/near-days?date=2026-05-29&mode=color")
+      .get("/feed")
       .set("X-Anonymous-User-Id", userA)
       .expect(200)
       .expect(({ body }) => {
-        const returned = body.days.find(
-          (item: { words: string[] }) => item.words.join("/") === "雨/駅/朝",
-        );
-        expect(returned.returnedColor.colorName).toBe("蜜の黄");
+        const returned = findFeedItem(body.entries, "雨/改札/午後");
+        expect(returned?.returnedColor?.colorName).toBe("蜜の黄");
       });
   });
 
   it("rejects invalid returned colors", async () => {
-    await seedNearEntries();
+    await seedFeedEntries();
 
-    const nearResponse = await request(app.getHttpServer())
-      .get("/near-days?date=2026-05-29&mode=color")
+    const feedResponse = await request(app.getHttpServer())
+      .get("/feed")
       .set("X-Anonymous-User-Id", userA)
       .expect(200);
-    const target = nearResponse.body.days.find(
-      (item: { words: string[] }) => item.words.join("/") === "雨/駅/朝",
-    );
+    const target = findFeedItem(feedResponse.body.entries, "雨/改札/午後");
+    if (!target) {
+      throw new Error("Expected feed target to exist");
+    }
 
     await request(app.getHttpServer())
       .put(`/entries/${target.entryId}/reactions/color`)
@@ -242,13 +324,14 @@ describe("OneColor API", () => {
       .send({ colorName: "遠い青" })
       .expect(404);
 
-    const userDNearResponse = await request(app.getHttpServer())
-      .get("/near-days?date=2026-05-30&mode=color")
+    const userDFeedResponse = await request(app.getHttpServer())
+      .get("/feed")
       .set("X-Anonymous-User-Id", userD)
       .expect(200);
-    const ownTarget = userDNearResponse.body.days.find(
-      (item: { words: string[] }) => item.words.join("/") === "雨/改札/旅",
-    );
+    const ownTarget = findFeedItem(userDFeedResponse.body.entries, "雨/改札/旅");
+    if (!ownTarget) {
+      throw new Error("Expected own feed target to exist");
+    }
 
     await request(app.getHttpServer())
       .put(`/entries/${ownTarget.entryId}/reactions/color`)

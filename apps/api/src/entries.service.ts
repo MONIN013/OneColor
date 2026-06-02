@@ -1,14 +1,14 @@
-import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type {
   ColorReaction,
   ColorReactionResponse,
   ColorReactionsResponse,
-  DayEntry,
   EntryResponse,
   EntriesResponse,
-  NearDay,
-  NearDaysResponse,
-  NearMode,
+  FeedEntry,
+  FeedResponse,
+  PersistedDayEntry,
+  ProfileStatsResponse,
   SaveColorReactionRequest,
   SaveEntryRequest,
 } from "@onecolor/shared";
@@ -43,7 +43,7 @@ export class EntriesService {
     });
 
     return {
-      entries: entries.map(toDayEntry),
+      entries: entries.map(toPersistedDayEntry),
     };
   }
 
@@ -63,7 +63,23 @@ export class EntriesService {
     }
 
     return {
-      entry: toDayEntry(entry),
+      entry: toPersistedDayEntry(entry),
+    };
+  }
+
+  async profileStats(userId: string): Promise<ProfileStatsResponse> {
+    await this.ensureUser(userId);
+    const totalEntries = await this.prisma.entry.count({
+      where: {
+        userId,
+      },
+    });
+
+    return {
+      stats: {
+        totalEntries,
+        totalWords: totalEntries * 3,
+      },
     };
   }
 
@@ -86,6 +102,26 @@ export class EntriesService {
     ];
     if (trimmedWords.some((word) => word.length === 0)) {
       throw new BadRequestException("words must not be empty");
+    }
+
+    const existingEntry = await this.prisma.entry.findUnique({
+      where: {
+        userId_date: {
+          userId,
+          date,
+        },
+      },
+    });
+    if (
+      existingEntry &&
+      request.baseUpdatedAt &&
+      existingEntry.updatedAt.toISOString() !== request.baseUpdatedAt
+    ) {
+      throw new ConflictException({
+        statusCode: 409,
+        message: "Entry has changed on the server",
+        entry: toPersistedDayEntry(existingEntry),
+      });
     }
 
     const entry = await this.prisma.entry.upsert({
@@ -116,31 +152,27 @@ export class EntriesService {
     });
 
     return {
-      entry: toDayEntry(entry),
+      entry: toPersistedDayEntry(entry),
     };
   }
 
-  async nearDays(
+  async feed(
     userId: string,
-    date: string,
-    mode: NearMode = "color",
-  ): Promise<NearDaysResponse> {
+    limit = 20,
+  ): Promise<FeedResponse> {
     await this.ensureUser(userId);
 
-    const baseEntry = await this.prisma.entry.findUnique({
+    const ownEntryCount = await this.prisma.entry.count({
       where: {
-        userId_date: {
-          userId,
-          date,
-        },
+        userId,
       },
     });
 
-    if (!baseEntry) {
-      return { days: [] };
+    if (ownEntryCount === 0) {
+      return { entries: [], requiresEntry: true };
     }
 
-    const candidates = await this.prisma.entry.findMany({
+    const entries = await this.prisma.entry.findMany({
       where: {
         userId: {
           not: userId,
@@ -154,36 +186,21 @@ export class EntriesService {
           take: 1,
         },
       },
+      orderBy: [
+        {
+          createdAt: "desc",
+        },
+        {
+          id: "desc",
+        },
+      ],
+      take: limit,
     });
 
-    const days = candidates
-      .map((entry) => ({
-        day: toNearDay(
-          entry,
-          mode === "words"
-            ? scoreWords(baseEntry, entry)
-            : scoreColor(baseEntry.colorHex, entry.colorHex),
-          entry.colorReactions[0],
-        ),
-      }))
-      .filter(({ day }) => mode === "color" || day.closeness > 0)
-      .sort((a, b) => {
-        const closenessDelta = b.day.closeness - a.day.closeness;
-        if (closenessDelta !== 0) {
-          return closenessDelta;
-        }
-
-        const dateDelta = b.day.date.localeCompare(a.day.date);
-        if (dateDelta !== 0) {
-          return dateDelta;
-        }
-
-        return a.day.entryId.localeCompare(b.day.entryId);
-      })
-      .slice(0, 20)
-      .map(({ day }) => day);
-
-    return { days };
+    return {
+      entries: entries.map((entry) => toFeedEntry(entry, entry.colorReactions[0])),
+      requiresEntry: false,
+    };
   }
 
   async findReactions(userId: string, date: string): Promise<ColorReactionsResponse> {
@@ -267,12 +284,15 @@ export class EntriesService {
   }
 }
 
-const toDayEntry = (entry: Entry): DayEntry => ({
+const toPersistedDayEntry = (entry: Entry): PersistedDayEntry => ({
+  id: entry.id,
   date: entry.date,
   words: [entry.word1, entry.word2, entry.word3],
   colorName: entry.colorName,
   colorHex: entry.colorHex,
   textColor: entry.textColor,
+  createdAt: entry.createdAt.toISOString(),
+  updatedAt: entry.updatedAt.toISOString(),
 });
 
 const toColorReaction = (reaction: ColorReactionRecord): ColorReaction => ({
@@ -285,52 +305,16 @@ const toColorReaction = (reaction: ColorReactionRecord): ColorReaction => ({
   updatedAt: reaction.updatedAt.toISOString(),
 });
 
-const toNearDay = (
+const toFeedEntry = (
   entry: Entry,
-  closeness: number,
   returnedColor?: ColorReactionRecord,
-): NearDay => ({
-  ...toDayEntry(entry),
+): FeedEntry => ({
+  date: entry.date,
+  words: [entry.word1, entry.word2, entry.word3],
+  colorName: entry.colorName,
+  colorHex: entry.colorHex,
+  textColor: entry.textColor,
   entryId: entry.id,
-  closeness,
+  createdAt: entry.createdAt.toISOString(),
   returnedColor: returnedColor ? toColorReaction(returnedColor) : undefined,
 });
-
-const scoreWords = (baseEntry: Entry, candidate: Entry) => {
-  const baseWords = new Set(normalizeWords(baseEntry));
-  const candidateWords = new Set(normalizeWords(candidate));
-  let overlap = 0;
-
-  for (const word of candidateWords) {
-    if (baseWords.has(word)) {
-      overlap += 1;
-    }
-  }
-
-  return Math.round((overlap / 3) * 100);
-};
-
-const normalizeWords = (entry: Entry) =>
-  [entry.word1, entry.word2, entry.word3].map((word) => word.trim().toLocaleLowerCase());
-
-const scoreColor = (baseHex: string, candidateHex: string) => {
-  const base = hexToRgb(baseHex);
-  const candidate = hexToRgb(candidateHex);
-  const maxDistance = Math.sqrt(3 * 255 ** 2);
-  const distance = Math.sqrt(
-    (base.red - candidate.red) ** 2 +
-      (base.green - candidate.green) ** 2 +
-      (base.blue - candidate.blue) ** 2,
-  );
-
-  return Math.max(0, Math.round((1 - distance / maxDistance) * 100));
-};
-
-const hexToRgb = (hex: string) => {
-  const value = hex.replace("#", "");
-  return {
-    red: Number.parseInt(value.slice(0, 2), 16),
-    green: Number.parseInt(value.slice(2, 4), 16),
-    blue: Number.parseInt(value.slice(4, 6), 16),
-  };
-};
