@@ -4,6 +4,7 @@ import { RotateCcw } from "lucide-react-native";
 import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
 import { formatWords } from "@onecolor/shared";
 import { AppButton } from "./AppButton";
+import { DecorativeSwatches } from "./DecorativeSwatches";
 import { ErrorBanner } from "./ErrorBanner";
 import { Screen } from "./Screen";
 import { ScreenHeader } from "./ScreenHeader";
@@ -88,8 +89,20 @@ export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
           accessibilityLabel={`${entry.colorName} ${formatWords(entry.words)}`}
           style={[styles.dayCard, { backgroundColor: entry.colorHex }]}
         >
+          <View
+            accessibilityElementsHidden
+            style={[
+              styles.cardSpecimenCorner,
+              { backgroundColor: entry.textColor },
+            ]}
+          />
           <View style={styles.cardBadge}>
-            <Text numberOfLines={1} style={[styles.cardColor, { color: entry.textColor }]}>
+            <Text
+              adjustsFontSizeToFit
+              minimumFontScale={0.76}
+              numberOfLines={1}
+              style={[styles.cardColor, { color: entry.textColor }]}
+            >
               {entry.colorName}
             </Text>
           </View>
@@ -106,18 +119,13 @@ export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
               </Text>
             ))}
           </View>
-          <View style={[styles.cardRule, { backgroundColor: entry.textColor }]} />
         </View>
       ) : (
         <View
           accessibilityLabel={`${getDateTitle(date)} まだ記録なし`}
           style={[styles.dayCard, styles.emptyDayCard]}
         >
-          <View style={styles.emptySwatches}>
-            <View style={[styles.emptySwatch, styles.emptySwatchOne, { backgroundColor: "#5F7E96" }]} />
-            <View style={[styles.emptySwatch, styles.emptySwatchTwo, { backgroundColor: "#D69A5C" }]} />
-            <View style={[styles.emptySwatch, styles.emptySwatchThree, { backgroundColor: "#405650" }]} />
-          </View>
+          <DecorativeSwatches size={58} style={styles.emptySwatches} />
           <Text maxFontSizeMultiplier={1.2} style={styles.emptyTitle}>
             まだ記録なし
           </Text>
@@ -196,7 +204,9 @@ export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
               {returnedColors.map((reaction) => (
                 <View key={reaction.id} style={styles.replyChip}>
                   <View style={[styles.replyDot, { backgroundColor: reaction.colorHex }]} />
-                  <Text style={styles.replyChipText}>{reaction.colorName}</Text>
+                  <Text numberOfLines={1} style={styles.replyChipText}>
+                    {reaction.colorName}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -228,10 +238,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     gap: 18,
+    overflow: "hidden",
     paddingHorizontal: 30,
     paddingVertical: 30,
     borderRadius: radii.specimen,
     ...shadowLifted,
+  },
+  cardSpecimenCorner: {
+    position: "absolute",
+    top: -22,
+    right: -20,
+    width: 96,
+    height: 96,
+    borderRadius: 26,
+    opacity: 0.14,
+    transform: [{ rotate: "8deg" }],
   },
   loadingState: {
     minHeight: 84,
@@ -246,29 +267,7 @@ const styles = StyleSheet.create({
     borderColor: surfaces.lineStrong,
   },
   emptySwatches: {
-    height: 74,
-    width: 132,
     marginBottom: 10,
-  },
-  emptySwatch: {
-    position: "absolute",
-    width: 58,
-    height: 68,
-    borderRadius: 18,
-    opacity: 0.82,
-    ...shadowSoft,
-  },
-  emptySwatchOne: {
-    left: 4,
-    top: 4,
-  },
-  emptySwatchTwo: {
-    left: 42,
-    top: 14,
-  },
-  emptySwatchThree: {
-    right: 4,
-    top: 0,
   },
   cardColor: {
     maxWidth: "100%",
@@ -301,11 +300,6 @@ const styles = StyleSheet.create({
     lineHeight: 56,
     textAlign: "center",
   },
-  cardRule: {
-    alignSelf: "stretch",
-    height: 1,
-    opacity: 0.28,
-  },
   emptyTitle: {
     color: colors.ink,
     fontFamily: fonts.serifHeavy,
@@ -325,8 +319,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: surfaces.lineStrong,
-    borderRadius: radii.lg,
-    backgroundColor: surfaces.cardMuted,
+    borderRadius: radii.xl,
+    backgroundColor: surfaces.card,
+    ...shadowSoft,
   },
   replyTitle: {
     color: colors.ink,
@@ -356,6 +351,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   replyChip: {
+    maxWidth: "100%",
     minHeight: 44,
     flexDirection: "row",
     alignItems: "center",
@@ -369,11 +365,13 @@ const styles = StyleSheet.create({
   replyDot: {
     width: 20,
     height: 20,
-    borderRadius: 10,
+    borderRadius: 7,
     borderWidth: 1,
     borderColor: "rgba(41,36,31,0.14)",
   },
   replyChipText: {
+    flexShrink: 1,
+    minWidth: 0,
     color: colors.ink,
     fontFamily: fonts.sansHeavy,
     fontSize: 12,

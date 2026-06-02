@@ -24,9 +24,10 @@ export default function CalendarScreen() {
   } = useAppState();
   const { width } = useWindowDimensions();
   const { firstDayOffset, days } = getMonthDays(currentMonth);
-  const calendarWidth = Math.min(width * 0.9, 350);
-  const cellSize = Math.floor(calendarWidth / 7);
-  const horizontalHitSlop = Math.max(0, (48 - cellSize) / 2);
+  const gridGap = 4;
+  const calendarWidth = Math.min(Math.max(width - 64, 240), 348);
+  const cellSize = Math.floor((calendarWidth - gridGap * 6) / 7);
+  const cellHitSlop = Math.max(0, (44 - cellSize) / 2);
   const visibleSelectedDate = selectedDate.startsWith(`${currentMonth}-`)
     ? selectedDate
     : `${currentMonth}-01`;
@@ -36,6 +37,12 @@ export default function CalendarScreen() {
     const date = dateIdForDay(currentMonth, day);
     return getEntry(date) ? count + 1 : count;
   }, 0);
+  const monthSamples = days
+    .flatMap((day) => {
+      const entry = getEntry(dateIdForDay(currentMonth, day));
+      return entry ? [entry] : [];
+    })
+    .slice(0, 5);
 
   const openDay = (date: string) => {
     setSelectedDate(date);
@@ -74,6 +81,21 @@ export default function CalendarScreen() {
       </View>
 
       <View style={styles.calendarPanel}>
+        <View accessibilityElementsHidden style={styles.monthRail}>
+          {monthSamples.length > 0 ? (
+            monthSamples.map((entry, index) => (
+              <View
+                key={`${entry.date}-${index}`}
+                style={[
+                  styles.monthRailChip,
+                  { backgroundColor: entry.colorHex },
+                ]}
+              />
+            ))
+          ) : (
+            <View style={styles.monthRailEmpty} />
+          )}
+        </View>
         <View accessibilityElementsHidden style={styles.weekdayRow}>
           {weekdays.map((weekday) => (
             <Text key={weekday} style={styles.weekday}>
@@ -84,12 +106,16 @@ export default function CalendarScreen() {
 
         <View
           accessibilityLabel={`${monthName} ${year}`}
-          style={[styles.calendarGrid, { width: calendarWidth }]}
+          style={[styles.calendarGrid, { columnGap: gridGap, rowGap: gridGap, width: calendarWidth }]}
         >
           {Array.from({ length: firstDayOffset }, (_, index) => (
             <View
               key={`blank-${index}`}
-              style={[styles.calendarCell, { width: cellSize }, styles.blankCell]}
+              style={[
+                styles.calendarCell,
+                { height: cellSize, width: cellSize },
+                styles.blankCell,
+              ]}
             />
           ))}
           {days.map((day) => {
@@ -111,12 +137,17 @@ export default function CalendarScreen() {
                 }
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
-                hitSlop={{ left: horizontalHitSlop, right: horizontalHitSlop }}
+                hitSlop={{
+                  bottom: cellHitSlop,
+                  left: cellHitSlop,
+                  right: cellHitSlop,
+                  top: cellHitSlop,
+                }}
                 key={date}
                 onPress={() => openDay(date)}
                 style={[
                   styles.calendarCell,
-                  { width: cellSize },
+                  { height: cellSize, width: cellSize },
                   entry ? styles.filledCell : styles.emptyCell,
                   entry ? { backgroundColor: entry.colorHex } : null,
                   isToday && styles.todayCell,
@@ -135,28 +166,39 @@ export default function CalendarScreen() {
             );
           })}
         </View>
-      </View>
 
-      <Pressable accessibilityRole="button" onPress={() => openDay(visibleSelectedDate)} style={styles.daySummary}>
-        <View
-          style={[
-            styles.largeChip,
-            selectedEntry
-              ? { backgroundColor: selectedEntry.colorHex }
-              : styles.emptyLargeChip,
-          ]}
-        />
-        <View style={styles.summaryCopy}>
-          <Text style={styles.summarySmall}>{Number(visibleSelectedDate.slice(-2))}日</Text>
-          <Text style={styles.summaryWords}>
-            {selectedEntry ? formatWords(selectedEntry.words) : "まだ記録なし"}
-          </Text>
-          <Text style={styles.summarySmall}>
-            {selectedEntry ? selectedEntry.colorName : "この日を残す"}
-          </Text>
-        </View>
-        <ArrowRight color={colors.ink} size={18} />
-      </Pressable>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => openDay(visibleSelectedDate)}
+          style={styles.daySummary}
+        >
+          <View
+            style={[
+              styles.largeChip,
+              selectedEntry
+                ? { backgroundColor: selectedEntry.colorHex }
+                : styles.emptyLargeChip,
+            ]}
+          />
+          <View style={styles.summaryCopy}>
+            <Text numberOfLines={1} style={styles.summarySmall}>
+              {Number(visibleSelectedDate.slice(-2))}日
+            </Text>
+            <Text
+              adjustsFontSizeToFit
+              minimumFontScale={0.72}
+              numberOfLines={1}
+              style={styles.summaryWords}
+            >
+              {selectedEntry ? formatWords(selectedEntry.words) : "まだ記録なし"}
+            </Text>
+            <Text numberOfLines={1} style={styles.summarySmall}>
+              {selectedEntry ? selectedEntry.colorName : "この日を残す"}
+            </Text>
+          </View>
+          <ArrowRight color={colors.ink} size={18} />
+        </Pressable>
+      </View>
     </Screen>
   );
 }
@@ -167,11 +209,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     marginTop: 8,
-    marginBottom: 18,
+    marginBottom: 16,
   },
   monthTitleWrap: {
     flex: 1,
     alignItems: "center",
+    paddingHorizontal: 10,
   },
   monthTitle: {
     color: colors.ink,
@@ -204,18 +247,44 @@ const styles = StyleSheet.create({
   },
   calendarPanel: {
     alignItems: "center",
-    paddingVertical: 16,
+    paddingTop: 12,
+    paddingBottom: 16,
+    paddingHorizontal: 12,
     borderWidth: 1,
     borderColor: surfaces.lineStrong,
     borderRadius: radii.xl,
     backgroundColor: surfaces.wash,
     ...shadowSoft,
   },
+  monthRail: {
+    alignSelf: "stretch",
+    minHeight: 32,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 7,
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  monthRailChip: {
+    width: 30,
+    height: 30,
+    borderRadius: radii.sm,
+    borderWidth: 1,
+    borderColor: "rgba(255,253,248,0.42)",
+  },
+  monthRailEmpty: {
+    width: 30,
+    height: 30,
+    borderWidth: 1,
+    borderColor: surfaces.hairline,
+    borderRadius: radii.sm,
+    backgroundColor: "rgba(255,253,248,0.54)",
+  },
   weekdayRow: {
     flexDirection: "row",
-    gap: 4,
     width: "100%",
-    paddingHorizontal: 14,
+    paddingHorizontal: 6,
     marginBottom: 8,
   },
   weekday: {
@@ -231,7 +300,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   calendarCell: {
-    minHeight: 48,
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
@@ -242,7 +310,7 @@ const styles = StyleSheet.create({
   },
   emptyCell: {
     borderColor: surfaces.hairline,
-    backgroundColor: "rgba(255,253,248,0.62)",
+    backgroundColor: "rgba(255,253,248,0.68)",
   },
   filledCell: {
     borderColor: "transparent",
@@ -262,14 +330,15 @@ const styles = StyleSheet.create({
     color: "#B9AC9E",
   },
   daySummary: {
+    alignSelf: "stretch",
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
-    marginTop: 22,
-    padding: 18,
+    marginTop: 16,
+    padding: 16,
     borderWidth: 1,
     borderColor: surfaces.lineStrong,
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     backgroundColor: surfaces.card,
     ...shadowLifted,
   },
@@ -277,6 +346,7 @@ const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: radii.md,
+    flexShrink: 0,
   },
   emptyLargeChip: {
     borderWidth: 1,
@@ -285,11 +355,13 @@ const styles = StyleSheet.create({
   },
   summaryCopy: {
     flex: 1,
+    minWidth: 0,
   },
   summarySmall: {
     color: colors.inkSubtle,
     fontFamily: fonts.sansBold,
     fontSize: 12,
+    lineHeight: 18,
   },
   summaryWords: {
     color: colors.ink,

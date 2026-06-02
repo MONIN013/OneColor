@@ -39,6 +39,9 @@ export default function ProfileScreen() {
         >
           <Leaf color={entry?.textColor ?? colors.inkSubtle} size={24} />
           <Text
+            adjustsFontSizeToFit
+            minimumFontScale={0.76}
+            numberOfLines={1}
             style={[
               styles.profileColorName,
               { color: entry?.textColor ?? colors.inkSubtle },
@@ -48,10 +51,15 @@ export default function ProfileScreen() {
           </Text>
         </View>
         <View style={styles.profileCopy}>
-          <Text style={styles.profileWords}>
+          <Text
+            adjustsFontSizeToFit
+            minimumFontScale={0.72}
+            numberOfLines={1}
+            style={styles.profileWords}
+          >
             {entry ? formatWords(entry.words) : "まだ記録なし"}
           </Text>
-          <Text style={styles.profileMeta}>
+          <Text numberOfLines={1} style={styles.profileMeta}>
             {entry ? "今日の記録" : "今日の記録はまだありません"}
           </Text>
         </View>
@@ -77,8 +85,6 @@ function Stat({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   profileCard: {
-    flexDirection: "row",
-    alignItems: "center",
     gap: 16,
     marginTop: 12,
     padding: 18,
@@ -89,8 +95,9 @@ const styles = StyleSheet.create({
     ...shadowLifted,
   },
   profileColor: {
-    width: 78,
-    height: 96,
+    alignSelf: "flex-start",
+    width: 108,
+    height: 108,
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
@@ -103,12 +110,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
   },
   profileColorName: {
+    maxWidth: "86%",
     fontFamily: fonts.sansHeavy,
     fontSize: 11,
+    lineHeight: 16,
     textAlign: "center",
   },
   profileCopy: {
-    flex: 1,
+    gap: 4,
+    minWidth: 0,
   },
   profileWords: {
     color: colors.ink,
@@ -120,27 +130,30 @@ const styles = StyleSheet.create({
     color: colors.inkSubtle,
     fontFamily: fonts.sansBold,
     fontSize: 12,
+    lineHeight: 18,
   },
   profileStats: {
     flexDirection: "row",
-    gap: 10,
+    gap: 1,
+    overflow: "hidden",
     marginVertical: 18,
-  },
-  stat: {
-    flex: 1,
-    minHeight: 88,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
     borderWidth: 1,
     borderColor: surfaces.lineStrong,
     borderRadius: radii.lg,
+    backgroundColor: surfaces.card,
+  },
+  stat: {
+    flex: 1,
+    minHeight: 70,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 4,
     backgroundColor: surfaces.cardMuted,
   },
   statValue: {
     color: colors.ink,
     fontFamily: fonts.serifHeavy,
-    fontSize: 22,
+    fontSize: 18,
   },
   statLabel: {
     color: colors.inkSubtle,

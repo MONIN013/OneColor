@@ -1,9 +1,10 @@
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { formatWords } from "@onecolor/shared";
 import type { FeedEntry, PaletteColor } from "@onecolor/shared";
 import { AppButton } from "../../src/components/AppButton";
+import { DecorativeSwatches } from "../../src/components/DecorativeSwatches";
 import { ErrorBanner } from "../../src/components/ErrorBanner";
 import { Screen } from "../../src/components/Screen";
 import { ScreenHeader } from "../../src/components/ScreenHeader";
@@ -71,6 +72,7 @@ export default function FeedScreen() {
     if (feedRequiresEntry && hasPendingEntry) {
       return (
         <View style={styles.emptyState}>
+          <DecorativeSwatches style={styles.emptySwatches} />
           <Text style={styles.emptyTitle}>記録を同期中です。</Text>
           <Text style={styles.emptyText}>同期が終わると、みんなの日を見られます。</Text>
           {hasRetryablePendingEntry ? (
@@ -85,6 +87,7 @@ export default function FeedScreen() {
     if (feedRequiresEntry) {
       return (
         <View style={styles.emptyState}>
+          <DecorativeSwatches style={styles.emptySwatches} />
           <Text style={styles.emptyTitle}>記録が必要です。</Text>
           <Text style={styles.emptyText}>記録を残すと、みんなの日を見られます。</Text>
           <AppButton kind="secondary" onPress={startTodayEntry} style={styles.emptyAction}>
@@ -97,8 +100,15 @@ export default function FeedScreen() {
     if (feedStatus.loading && feedEntries.length === 0) {
       return (
         <View accessibilityLabel="みんなの日を読み込み中" style={styles.loadingState}>
-          <ActivityIndicator color={colors.ink} />
-          <Text style={styles.emptyText}>みんなの日を読み込み中</Text>
+          {[0, 1, 2].map((item) => (
+            <View key={item} style={styles.loadingCard}>
+              <View style={styles.loadingChip} />
+              <View style={styles.loadingCopy}>
+                <View style={styles.loadingLineShort} />
+                <View style={styles.loadingLineLong} />
+              </View>
+            </View>
+          ))}
         </View>
       );
     }
@@ -106,6 +116,7 @@ export default function FeedScreen() {
     if (feedEntries.length === 0) {
       return (
         <View style={styles.emptyState}>
+          <DecorativeSwatches style={styles.emptySwatches} />
           <Text style={styles.emptyTitle}>みんなの日はまだありません。</Text>
           <Text style={styles.emptyText}>他の記録が増えると、ここに表示されます。</Text>
         </View>
@@ -116,7 +127,9 @@ export default function FeedScreen() {
       <View key={item.entryId} style={styles.feedCard}>
         <View style={[styles.feedChip, { backgroundColor: item.colorHex }]} />
         <View style={styles.feedCopy}>
-          <Text style={styles.feedDate}>{getDateTitle(item.date)}</Text>
+          <Text numberOfLines={1} style={styles.feedDate}>
+            {getDateTitle(item.date)}
+          </Text>
           <Text
             adjustsFontSizeToFit
             minimumFontScale={0.76}
@@ -125,7 +138,9 @@ export default function FeedScreen() {
           >
             {formatWords(item.words)}
           </Text>
-          <Text style={styles.feedMeta}>{item.colorName}</Text>
+          <Text numberOfLines={1} style={styles.feedMeta}>
+            {item.colorName}
+          </Text>
           {item.returnedColor ? (
             <View style={styles.returnedColor}>
               <View
@@ -134,7 +149,7 @@ export default function FeedScreen() {
                   { backgroundColor: item.returnedColor.colorHex },
                 ]}
               />
-              <Text style={styles.returnedColorText}>
+              <Text numberOfLines={1} style={styles.returnedColorText}>
                 返した色: {item.returnedColor.colorName}
               </Text>
             </View>
@@ -244,14 +259,15 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: surfaces.lineStrong,
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     backgroundColor: surfaces.card,
     ...shadowSoft,
   },
   feedChip: {
-    width: 56,
-    height: 72,
+    width: 64,
+    height: 64,
     borderRadius: radii.md,
+    flexShrink: 0,
     ...shadowSoft,
   },
   feedCopy: {
@@ -274,6 +290,7 @@ const styles = StyleSheet.create({
     color: colors.inkSubtle,
     fontFamily: fonts.sansBold,
     fontSize: 12,
+    lineHeight: 18,
   },
   returnedColor: {
     minHeight: 28,
@@ -285,14 +302,17 @@ const styles = StyleSheet.create({
   returnedColorDot: {
     width: 18,
     height: 18,
-    borderRadius: 9,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: "rgba(41,36,31,0.14)",
   },
   returnedColorText: {
+    flex: 1,
+    minWidth: 0,
     color: colors.inkSubtle,
     fontFamily: fonts.sansBold,
     fontSize: 12,
+    lineHeight: 18,
   },
   replyButton: {
     alignSelf: "flex-start",
@@ -303,7 +323,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: surfaces.lineStrong,
     borderRadius: radii.md,
-    backgroundColor: surfaces.cardMuted,
+    backgroundColor: surfaces.primaryWash,
   },
   replyButtonText: {
     color: colors.inkSubtle,
@@ -315,15 +335,51 @@ const styles = StyleSheet.create({
     padding: 18,
     borderWidth: 1,
     borderColor: surfaces.lineStrong,
-    borderRadius: radii.lg,
+    borderRadius: radii.xl,
     backgroundColor: surfaces.card,
     ...shadowSoft,
   },
   loadingState: {
-    minHeight: 96,
+    gap: 12,
+  },
+  loadingCard: {
+    minHeight: 94,
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    gap: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: surfaces.hairline,
+    borderRadius: radii.lg,
+    backgroundColor: "rgba(255,253,248,0.62)",
+  },
+  loadingChip: {
+    width: 54,
+    height: 54,
+    borderRadius: radii.md,
+    flexShrink: 0,
+    backgroundColor: "rgba(119,108,97,0.15)",
+  },
+  loadingCopy: {
+    flex: 1,
+    minWidth: 0,
     gap: 10,
+  },
+  loadingLineShort: {
+    width: "42%",
+    height: 12,
+    borderRadius: 999,
+    backgroundColor: "rgba(119,108,97,0.16)",
+  },
+  loadingLineLong: {
+    width: "78%",
+    height: 18,
+    borderRadius: 999,
+    backgroundColor: "rgba(119,108,97,0.14)",
+  },
+  emptySwatches: {
+    alignSelf: "center",
+    marginBottom: 8,
   },
   emptyTitle: {
     color: colors.ink,
@@ -399,14 +455,15 @@ const styles = StyleSheet.create({
   modalColorDot: {
     width: 22,
     height: 22,
-    borderRadius: 11,
+    borderRadius: 7,
     borderWidth: 1,
     borderColor: "rgba(41,36,31,0.16)",
   },
   modalColorName: {
     color: colors.ink,
     fontFamily: fonts.sansBold,
-    fontSize: 10,
+    fontSize: 11,
+    lineHeight: 15,
   },
   modalCancel: {
     minHeight: 50,

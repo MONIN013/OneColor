@@ -8,7 +8,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
-import { appStyles, colors, shadowSoft, surfaces } from "../theme";
+import { appStyles, shadowSoft, surfaces } from "../theme";
 
 type ScreenProps = {
   children: ReactNode;
@@ -23,9 +23,8 @@ export function Screen({ children, footer, onRefresh, refreshing = false }: Scre
   return (
     <SafeAreaView edges={["top", "left", "right"]} style={appStyles.root}>
       <View pointerEvents="none" style={styles.paperLayer}>
-        <View style={[styles.paperFiber, styles.paperFiberTop]} />
-        <View style={[styles.paperFiber, styles.paperFiberMid]} />
-        <View style={[styles.paperFiber, styles.paperFiberLow]} />
+        <View style={styles.paperBlockTop} />
+        <View style={styles.paperBlockBottom} />
       </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -71,16 +70,15 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
   },
   content: {
-    width: "91%",
-    maxWidth: 372,
     alignSelf: "center",
+    width: "100%",
+    maxWidth: 438,
+    paddingHorizontal: 24,
   },
   footer: {
     alignItems: "center",
     paddingTop: 14,
-    borderTopWidth: 1,
-    borderTopColor: surfaces.hairline,
-    backgroundColor: "rgba(248,241,232,0.96)",
+    backgroundColor: surfaces.footer,
     ...shadowSoft,
   },
   paperLayer: {
@@ -91,24 +89,26 @@ const styles = StyleSheet.create({
     left: 0,
     overflow: "hidden",
   },
-  paperFiber: {
+  paperBlockTop: {
     position: "absolute",
-    height: 1,
-    backgroundColor: surfaces.hairline,
-  },
-  paperFiberTop: {
-    top: 96,
-    left: 24,
-    right: 18,
-  },
-  paperFiberMid: {
-    top: 312,
+    top: -54,
     left: -28,
-    right: 86,
+    right: 56,
+    height: 188,
+    borderRadius: 38,
+    backgroundColor: surfaces.washCool,
+    opacity: 0.62,
+    transform: [{ rotate: "-3deg" }],
   },
-  paperFiberLow: {
-    bottom: 180,
-    left: 82,
-    right: -34,
+  paperBlockBottom: {
+    position: "absolute",
+    right: -48,
+    bottom: -74,
+    width: 214,
+    height: 264,
+    borderRadius: 34,
+    backgroundColor: surfaces.wash,
+    opacity: 0.58,
+    transform: [{ rotate: "6deg" }],
   },
 });

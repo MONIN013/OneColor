@@ -65,18 +65,40 @@ export const shadowLifted = Platform.select({
   },
 });
 
+export const shadowPressed = Platform.select({
+  ios: {
+    shadowColor: "#48341C",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.1,
+    shadowRadius: 14,
+  },
+  android: {
+    elevation: 1,
+  },
+  default: {
+    shadowColor: "#48341C",
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+  },
+});
+
 export const radii = {
-  sm: 12,
+  sm: 10,
   md: 18,
   lg: 24,
-  xl: 32,
-  specimen: 34,
+  xl: 30,
+  specimen: 36,
 } as const;
 
 export const surfaces = {
   card: "#FFFDF8",
-  cardMuted: "rgba(255,253,248,0.78)",
-  wash: "#F4EADC",
+  cardMuted: "rgba(255,253,248,0.76)",
+  field: "#FFF7EE",
+  wash: "#EFE3D3",
+  washCool: "#E6EDE8",
+  footer: "rgba(255,253,248,0.94)",
+  primaryWash: "rgba(96,118,110,0.16)",
   lineStrong: "rgba(41,36,31,0.14)",
   hairline: "rgba(41,36,31,0.08)",
 } as const;
@@ -92,12 +114,12 @@ export const appStyles = StyleSheet.create({
   },
   scrollContent: {
     alignItems: "center",
-    paddingTop: 22,
-    paddingBottom: 118,
+    paddingTop: 18,
+    paddingBottom: 126,
   },
   header: {
-    marginTop: 10,
-    marginBottom: 24,
+    marginTop: 8,
+    marginBottom: 22,
   },
   eyebrow: {
     color: colors.inkSubtle,
@@ -108,8 +130,8 @@ export const appStyles = StyleSheet.create({
   h1: {
     color: colors.ink,
     fontFamily: fonts.serifHeavy,
-    fontSize: 32,
-    lineHeight: 40,
+    fontSize: 31,
+    lineHeight: 39,
   },
   body: {
     maxWidth: 300,

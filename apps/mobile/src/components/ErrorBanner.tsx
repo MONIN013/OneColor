@@ -29,8 +29,7 @@ export function ErrorBanner({ message, onRetry }: ErrorBannerProps) {
 
 const styles = StyleSheet.create({
   banner: {
-    flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     borderWidth: 1,
     borderColor: "#D8B1A0",
     borderRadius: radii.md,

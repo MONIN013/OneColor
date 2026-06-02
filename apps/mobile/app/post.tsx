@@ -168,9 +168,9 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     padding: 14,
     borderWidth: 1,
-    borderColor: surfaces.lineStrong,
+    borderColor: surfaces.hairline,
     borderRadius: radii.lg,
-    backgroundColor: surfaces.cardMuted,
+    backgroundColor: surfaces.primaryWash,
   },
   progressHeading: {
     flexDirection: "row",
@@ -199,14 +199,14 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: surfaces.lineStrong,
     borderRadius: radii.lg,
-    backgroundColor: surfaces.card,
+    backgroundColor: surfaces.field,
     ...shadowSoft,
   },
   wordInputFilled: {
-    backgroundColor: surfaces.cardMuted,
+    backgroundColor: surfaces.card,
   },
   wordInputFocused: {
-    borderColor: colors.ink,
+    borderColor: colors.primaryDark,
     transform: [{ translateY: -1 }],
   },
   wordInputFull: {
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     height: 28,
     borderRadius: radii.sm,
     overflow: "hidden",
-    backgroundColor: colors.surfaceMuted,
+    backgroundColor: surfaces.primaryWash,
     color: colors.inkSubtle,
     fontFamily: fonts.serifHeavy,
     fontSize: 13,

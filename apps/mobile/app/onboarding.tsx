@@ -2,9 +2,10 @@ import { router } from "expo-router";
 import { PenLine } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { AppButton } from "../src/components/AppButton";
+import { DecorativeSwatches } from "../src/components/DecorativeSwatches";
 import { Screen } from "../src/components/Screen";
 import { useAppState } from "../src/state/AppState";
-import { colors, fonts, radii, shadowLifted, shadowSoft, surfaces } from "../src/theme";
+import { colors, fonts, radii, shadowLifted, surfaces } from "../src/theme";
 
 export default function OnboardingScreen() {
   const { markOnboardingSeen } = useAppState();
@@ -28,9 +29,7 @@ export default function OnboardingScreen() {
 
       <View accessibilityLabel="雨 改札 嘘 遠い青" style={styles.specimenHero}>
         <View style={styles.specimenStage}>
-          <View style={[styles.paperSwatch, styles.swatchBlue]} />
-          <View style={[styles.paperSwatch, styles.swatchOrange]} />
-          <View style={[styles.paperSwatch, styles.swatchGreen]} />
+          <DecorativeSwatches size={88} style={styles.specimenSwatches} />
         </View>
         <View style={styles.specimenCaption}>
           <Text
@@ -41,7 +40,9 @@ export default function OnboardingScreen() {
           >
             雨 / 改札 / 嘘
           </Text>
-          <Text style={styles.specimenColor}>遠い青</Text>
+          <Text numberOfLines={1} style={styles.specimenColor}>
+            遠い青
+          </Text>
         </View>
       </View>
 
@@ -94,38 +95,12 @@ const styles = StyleSheet.create({
     ...shadowLifted,
   },
   specimenStage: {
-    height: 150,
-    position: "relative",
+    height: 132,
+    justifyContent: "center",
     marginBottom: 12,
   },
-  paperSwatch: {
-    position: "absolute",
-    borderRadius: 20,
-    ...shadowSoft,
-  },
-  swatchBlue: {
-    top: 10,
-    left: 4,
-    width: 96,
-    height: 112,
-    backgroundColor: "#5F7E96",
-    transform: [{ rotate: "-1deg" }],
-  },
-  swatchOrange: {
-    top: 36,
-    left: 84,
-    width: 104,
-    height: 110,
-    backgroundColor: "#D69A5C",
-    transform: [{ rotate: "2deg" }],
-  },
-  swatchGreen: {
-    top: 8,
-    right: 2,
-    width: 78,
-    height: 94,
-    backgroundColor: "#405650",
-    transform: [{ rotate: "1deg" }],
+  specimenSwatches: {
+    alignSelf: "center",
   },
   specimenCaption: {
     gap: 4,

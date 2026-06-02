@@ -70,12 +70,15 @@ export default function ColorScreen() {
       <ErrorBanner message={entriesStatus.error} onRetry={refreshEntries} />
 
       <View style={[styles.selectedPreview, { backgroundColor: selectedColor.hex }]}>
-        <View
-          style={[
-            styles.largeChip,
-            { backgroundColor: selectedTextColor, borderColor: selectedTextColor },
-          ]}
-        />
+        <View style={styles.previewStack}>
+          <View
+            style={[
+              styles.previewSheet,
+              { backgroundColor: selectedTextColor, borderColor: selectedTextColor },
+            ]}
+          />
+          <View style={[styles.previewPin, { backgroundColor: selectedTextColor }]} />
+        </View>
         <View style={styles.previewCopy}>
           <Text
             adjustsFontSizeToFit
@@ -85,7 +88,12 @@ export default function ColorScreen() {
           >
             {formatWords(words)}
           </Text>
-          <Text style={[styles.previewMeta, { color: selectedTextColor }]}>
+          <Text
+            adjustsFontSizeToFit
+            minimumFontScale={0.76}
+            numberOfLines={1}
+            style={[styles.previewMeta, { color: selectedTextColor }]}
+          >
             選択中: {selectedColor.name}
           </Text>
         </View>
@@ -123,10 +131,6 @@ export default function ColorScreen() {
         </View>
       </View>
 
-      <View style={styles.selectedStrip}>
-        <View style={[styles.miniDot, { backgroundColor: selectedColor.hex }]} />
-        <Text style={styles.selectedStripText}>選択中: {selectedColor.name}</Text>
-      </View>
     </Screen>
   );
 }
@@ -136,18 +140,34 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 16,
+    minHeight: 128,
     padding: 18,
     borderWidth: 1,
     borderColor: "rgba(41,36,31,0.12)",
     borderRadius: radii.xl,
     ...shadowLifted,
   },
-  largeChip: {
-    width: 64,
-    height: 64,
-    borderRadius: radii.md,
+  previewStack: {
+    width: 72,
+    height: 72,
+    justifyContent: "center",
+  },
+  previewSheet: {
+    width: 62,
+    height: 62,
     borderWidth: 1,
-    opacity: 0.26,
+    borderRadius: radii.lg,
+    opacity: 0.22,
+    transform: [{ rotate: "-2deg" }],
+  },
+  previewPin: {
+    position: "absolute",
+    right: 0,
+    top: 8,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    opacity: 0.92,
   },
   previewCopy: {
     flex: 1,
@@ -163,11 +183,12 @@ const styles = StyleSheet.create({
     color: colors.inkSubtle,
     fontFamily: fonts.sansBold,
     fontSize: 12,
+    lineHeight: 18,
   },
   palettePanel: {
     marginTop: 18,
     marginBottom: 14,
-    padding: 18,
+    padding: 16,
     borderWidth: 1,
     borderColor: surfaces.lineStrong,
     borderRadius: radii.xl,
@@ -193,18 +214,18 @@ const styles = StyleSheet.create({
   paletteGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 9,
+    gap: 8,
   },
   paletteChoice: {
     width: "31%",
-    minHeight: 54,
-    flexDirection: "row",
+    minHeight: 74,
     alignItems: "center",
+    justifyContent: "center",
     gap: 7,
     borderWidth: 1,
     borderColor: "transparent",
     borderRadius: radii.md,
-    backgroundColor: "rgba(255,253,248,0.55)",
+    backgroundColor: "rgba(255,253,248,0.58)",
     padding: 6,
   },
   paletteChoiceSelected: {
@@ -213,40 +234,19 @@ const styles = StyleSheet.create({
     ...shadowSoft,
   },
   paletteDot: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 30,
+    height: 30,
+    borderRadius: radii.sm,
     borderWidth: 2,
     borderColor: "rgba(255,253,248,0.86)",
   },
   paletteName: {
-    flex: 1,
+    maxWidth: "100%",
     color: colors.ink,
     fontFamily: fonts.sansHeavy,
-    fontSize: 10,
-    lineHeight: 13,
-  },
-  selectedStrip: {
-    minHeight: 48,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: surfaces.lineStrong,
-    borderRadius: 999,
-    backgroundColor: surfaces.card,
-  },
-  miniDot: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
-  },
-  selectedStripText: {
-    flex: 1,
-    color: colors.ink,
-    fontFamily: fonts.sansHeavy,
-    fontSize: 13,
+    fontSize: 11,
+    lineHeight: 14,
+    textAlign: "center",
   },
   footerStack: {
     gap: 10,

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, ViewStyle } from "react-native";
-import { colors, fonts, radii, surfaces } from "../theme";
+import { colors, fonts, radii, shadowPressed, shadowSoft, surfaces } from "../theme";
 
 type AppButtonProps = {
   busy?: boolean;
@@ -53,7 +53,7 @@ export function AppButton({
 
 const styles = StyleSheet.create({
   button: {
-    minHeight: 52,
+    minHeight: 54,
     borderRadius: radii.md,
     alignItems: "center",
     justifyContent: "center",
@@ -65,9 +65,10 @@ const styles = StyleSheet.create({
   primary: {
     backgroundColor: colors.ink,
     borderColor: colors.ink,
+    ...shadowSoft,
   },
   secondary: {
-    backgroundColor: surfaces.cardMuted,
+    backgroundColor: surfaces.card,
     borderColor: surfaces.lineStrong,
   },
   disabled: {
@@ -76,7 +77,8 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.82,
-    transform: [{ translateY: 1 }, { scale: 0.992 }],
+    transform: [{ translateY: 1 }, { scale: 0.988 }],
+    ...shadowPressed,
   },
   label: {
     flexShrink: 1,
