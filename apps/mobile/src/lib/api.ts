@@ -6,7 +6,6 @@ import type {
   EntriesResponse,
   EntryResponse,
   FeedResponse,
-  PaletteResponse,
   ProfileStatsResponse,
   SaveColorReactionRequest,
   SaveEntryRequest,
@@ -239,8 +238,6 @@ export const createApiClient = ({
   baseUrls = getApiBaseUrls(),
   fetchImpl = fetch,
 }: ApiClientOptions = {}) => ({
-  palette: (userId: string) =>
-    request<PaletteResponse>(baseUrls, fetchImpl, "/palette", userId),
   profileStats: (userId: string) =>
     request<ProfileStatsResponse>(
       baseUrls,

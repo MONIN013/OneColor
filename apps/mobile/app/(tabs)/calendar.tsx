@@ -132,7 +132,7 @@ export default function CalendarScreen() {
               <Pressable
                 accessibilityLabel={
                   entry
-                    ? `${day}日 ${stateSuffix} ${entry.colorName} ${formatWords(entry.words)}`
+                    ? `${day}日 ${stateSuffix} ${entry.colorLabel} ${formatWords(entry.words)}`
                     : `${day}日 ${stateSuffix}`
                 }
                 accessibilityRole="button"
@@ -193,7 +193,7 @@ export default function CalendarScreen() {
               {selectedEntry ? formatWords(selectedEntry.words) : "まだ記録なし"}
             </Text>
             <Text numberOfLines={1} style={styles.summarySmall}>
-              {selectedEntry ? selectedEntry.colorName : "この日を残す"}
+              {selectedEntry ? selectedEntry.colorLabel : "この日を残す"}
             </Text>
           </View>
           <ArrowRight color={colors.ink} size={18} />

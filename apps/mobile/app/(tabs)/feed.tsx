@@ -1,8 +1,8 @@
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import { formatWords } from "@onecolor/shared";
-import type { FeedEntry, PaletteColor } from "@onecolor/shared";
+import { formatWords, generateDayPalette } from "@onecolor/shared";
+import type { FeedEntry, GeneratedColor } from "@onecolor/shared";
 import { AppButton } from "../../src/components/AppButton";
 import { DecorativeSwatches } from "../../src/components/DecorativeSwatches";
 import { ErrorBanner } from "../../src/components/ErrorBanner";
@@ -14,7 +14,6 @@ import { colors, fonts, radii, shadowLifted, shadowSoft, surfaces } from "../../
 
 export default function FeedScreen() {
   const {
-    colors: palette,
     feedEntries,
     feedRequiresEntry,
     feedStatus,
@@ -27,6 +26,13 @@ export default function FeedScreen() {
     todayId,
   } = useAppState();
   const [replyTarget, setReplyTarget] = useState<FeedEntry | null>(null);
+  const replyPalette = useMemo(
+    () =>
+      replyTarget
+        ? generateDayPalette({ date: replyTarget.date, words: replyTarget.words })
+        : [],
+    [replyTarget],
+  );
   const pendingEntryList = useMemo(
     () => Object.values(pendingEntries).filter((entry) => entry.status !== "conflict"),
     [pendingEntries],
@@ -42,7 +48,7 @@ export default function FeedScreen() {
 
   const startTodayEntry = async () => {
     await resetDraft({
-      colorName: "遠い青",
+      color: null,
       date: todayId,
       words: ["", "", ""],
     });
@@ -57,12 +63,12 @@ export default function FeedScreen() {
     await refreshFeed();
   };
 
-  const submitReply = async (color: PaletteColor) => {
+  const submitReply = async (color: GeneratedColor) => {
     if (!replyTarget) {
       return;
     }
 
-    const ok = await returnColor(replyTarget.entryId, color.name);
+    const ok = await returnColor(replyTarget, color);
     if (ok) {
       setReplyTarget(null);
     }
@@ -139,7 +145,7 @@ export default function FeedScreen() {
             {formatWords(item.words)}
           </Text>
           <Text numberOfLines={1} style={styles.feedMeta}>
-            {item.colorName}
+            {item.colorLabel}
           </Text>
           {item.returnedColor ? (
             <View style={styles.returnedColor}>
@@ -150,7 +156,7 @@ export default function FeedScreen() {
                 ]}
               />
               <Text numberOfLines={1} style={styles.returnedColorText}>
-                返した色: {item.returnedColor.colorName}
+                返した色: {item.returnedColor.colorLabel}
               </Text>
             </View>
           ) : null}
@@ -202,15 +208,17 @@ export default function FeedScreen() {
             <ErrorBanner message={reactionStatus.error} />
             <ScrollView style={styles.modalScroll} contentContainerStyle={styles.modalScrollContent}>
               <View accessibilityLabel="返す色を選ぶ" style={styles.modalPalette}>
-                {palette.map((color) => {
-                  const selected = color.name === replyTarget?.returnedColor?.colorName;
+                {replyPalette.map((color) => {
+                  const selected =
+                    color.index === replyTarget?.returnedColor?.colorIndex &&
+                    color.hex === replyTarget?.returnedColor?.colorHex;
                   return (
                     <Pressable
-                      accessibilityLabel={`${color.name}を返す`}
+                      accessibilityLabel={`${color.label}を返す`}
                       accessibilityRole="button"
                       accessibilityState={{ busy: reactionStatus.loading, disabled: reactionStatus.loading, selected }}
                       disabled={reactionStatus.loading}
-                      key={color.name}
+                      key={`${color.index}-${color.hex}`}
                       onPress={() => submitReply(color)}
                       style={[
                         styles.modalColorChoice,
@@ -225,7 +233,7 @@ export default function FeedScreen() {
                         numberOfLines={1}
                         style={styles.modalColorName}
                       >
-                        {color.name}
+                        {color.label}
                       </Text>
                     </Pressable>
                   );

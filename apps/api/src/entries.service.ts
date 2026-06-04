@@ -1,5 +1,6 @@
 import { BadRequestException, ConflictException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import type {
+  ColorAlgorithmVersion,
   ColorReaction,
   ColorReactionResponse,
   ColorReactionsResponse,
@@ -12,7 +13,7 @@ import type {
   SaveColorReactionRequest,
   SaveEntryRequest,
 } from "@onecolor/shared";
-import { findPaletteColor, isKnownColorName } from "@onecolor/shared";
+import { findGeneratedColor } from "@onecolor/shared";
 import { PrismaService } from "./prisma.service.ts";
 import type { ColorReaction as ColorReactionRecord, Entry } from "./generated/prisma/client.ts";
 
@@ -89,12 +90,6 @@ export class EntriesService {
     request: SaveEntryRequest,
   ): Promise<EntryResponse> {
     await this.ensureUser(userId);
-
-    if (!isKnownColorName(request.colorName)) {
-      throw new BadRequestException("Unknown colorName");
-    }
-
-    const color = findPaletteColor(request.colorName);
     const trimmedWords = request.words.map((word) => word.trim()) as [
       string,
       string,
@@ -103,6 +98,7 @@ export class EntriesService {
     if (trimmedWords.some((word) => word.length === 0)) {
       throw new BadRequestException("words must not be empty");
     }
+    const color = assertGeneratedColor(date, trimmedWords, request.color);
 
     const existingEntry = await this.prisma.entry.findUnique({
       where: {
@@ -135,9 +131,11 @@ export class EntriesService {
         word1: trimmedWords[0],
         word2: trimmedWords[1],
         word3: trimmedWords[2],
-        colorName: color.name,
+        colorLabel: color.label,
         colorHex: color.hex,
-        textColor: color.recommendedText,
+        textColor: color.textColor,
+        colorIndex: color.index,
+        colorAlgorithmVersion: color.algorithmVersion,
       },
       create: {
         userId,
@@ -145,9 +143,11 @@ export class EntriesService {
         word1: trimmedWords[0],
         word2: trimmedWords[1],
         word3: trimmedWords[2],
-        colorName: color.name,
+        colorLabel: color.label,
         colorHex: color.hex,
-        textColor: color.recommendedText,
+        textColor: color.textColor,
+        colorIndex: color.index,
+        colorAlgorithmVersion: color.algorithmVersion,
       },
     });
 
@@ -238,10 +238,6 @@ export class EntriesService {
   ): Promise<ColorReactionResponse> {
     await this.ensureUser(userId);
 
-    if (!isKnownColorName(request.colorName)) {
-      throw new BadRequestException("Unknown colorName");
-    }
-
     const entry = await this.prisma.entry.findUnique({
       where: {
         id: entryId,
@@ -256,7 +252,11 @@ export class EntriesService {
       throw new BadRequestException("Cannot return a color to your own entry");
     }
 
-    const color = findPaletteColor(request.colorName);
+    const color = assertGeneratedColor(
+      entry.date,
+      [entry.word1, entry.word2, entry.word3],
+      request.color,
+    );
     const reaction = await this.prisma.colorReaction.upsert({
       where: {
         entryId_userId: {
@@ -265,16 +265,20 @@ export class EntriesService {
         },
       },
       update: {
-        colorName: color.name,
+        colorLabel: color.label,
         colorHex: color.hex,
-        textColor: color.recommendedText,
+        textColor: color.textColor,
+        colorIndex: color.index,
+        colorAlgorithmVersion: color.algorithmVersion,
       },
       create: {
         entryId,
         userId,
-        colorName: color.name,
+        colorLabel: color.label,
         colorHex: color.hex,
-        textColor: color.recommendedText,
+        textColor: color.textColor,
+        colorIndex: color.index,
+        colorAlgorithmVersion: color.algorithmVersion,
       },
     });
 
@@ -288,9 +292,11 @@ const toPersistedDayEntry = (entry: Entry): PersistedDayEntry => ({
   id: entry.id,
   date: entry.date,
   words: [entry.word1, entry.word2, entry.word3],
-  colorName: entry.colorName,
+  colorLabel: entry.colorLabel,
   colorHex: entry.colorHex,
   textColor: entry.textColor,
+  colorIndex: entry.colorIndex,
+  colorAlgorithmVersion: toColorAlgorithmVersion(entry.colorAlgorithmVersion),
   createdAt: entry.createdAt.toISOString(),
   updatedAt: entry.updatedAt.toISOString(),
 });
@@ -298,9 +304,11 @@ const toPersistedDayEntry = (entry: Entry): PersistedDayEntry => ({
 const toColorReaction = (reaction: ColorReactionRecord): ColorReaction => ({
   id: reaction.id,
   entryId: reaction.entryId,
-  colorName: reaction.colorName,
+  colorLabel: reaction.colorLabel,
   colorHex: reaction.colorHex,
   textColor: reaction.textColor,
+  colorIndex: reaction.colorIndex,
+  colorAlgorithmVersion: toColorAlgorithmVersion(reaction.colorAlgorithmVersion),
   createdAt: reaction.createdAt.toISOString(),
   updatedAt: reaction.updatedAt.toISOString(),
 });
@@ -311,10 +319,34 @@ const toFeedEntry = (
 ): FeedEntry => ({
   date: entry.date,
   words: [entry.word1, entry.word2, entry.word3],
-  colorName: entry.colorName,
+  colorLabel: entry.colorLabel,
   colorHex: entry.colorHex,
   textColor: entry.textColor,
+  colorIndex: entry.colorIndex,
+  colorAlgorithmVersion: toColorAlgorithmVersion(entry.colorAlgorithmVersion),
   entryId: entry.id,
   createdAt: entry.createdAt.toISOString(),
   returnedColor: returnedColor ? toColorReaction(returnedColor) : undefined,
 });
+
+const assertGeneratedColor = (
+  date: string,
+  words: [string, string, string],
+  color: SaveEntryRequest["color"],
+) => {
+  const generated = findGeneratedColor(
+    { date, words, algorithmVersion: color.algorithmVersion },
+    color,
+  );
+  if (!generated) {
+    throw new BadRequestException("Color does not match generated palette");
+  }
+  return generated;
+};
+
+const toColorAlgorithmVersion = (value: string): ColorAlgorithmVersion => {
+  if (value !== "rgb24-v1") {
+    throw new BadRequestException("Unsupported color algorithm version");
+  }
+  return value;
+};

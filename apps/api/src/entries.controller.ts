@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Headers, Inject, Param, Put, Query } from "@nestjs/common";
-import type { ColorReactionResponse, ColorReactionsResponse, FeedResponse, PaletteResponse, ProfileStatsResponse } from "@onecolor/shared";
-import { dayPalette } from "@onecolor/shared";
+import type { ColorReactionResponse, ColorReactionsResponse, FeedResponse, ProfileStatsResponse } from "@onecolor/shared";
 import { DateParamDto, EntriesQueryDto, EntryIdParamDto, FeedQueryDto, SaveColorReactionDto, SaveEntryDto, assertAnonymousUserId } from "./dto.ts";
 import { EntriesService } from "./entries.service.ts";
 
@@ -9,14 +8,6 @@ export class EntriesController {
   constructor(
     @Inject(EntriesService) private readonly entriesService: EntriesService,
   ) {}
-
-  @Get("palette")
-  async palette(
-    @Headers("x-anonymous-user-id") userId: string | undefined,
-  ): Promise<PaletteResponse> {
-    await this.entriesService.ensureUser(assertAnonymousUserId(userId));
-    return { colors: dayPalette };
-  }
 
   @Get("profile/stats")
   profileStats(

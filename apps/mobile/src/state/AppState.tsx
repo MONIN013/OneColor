@@ -7,11 +7,11 @@ import type {
   DayEntry,
   EntryConflictResponse,
   FeedEntry,
-  PaletteColor,
+  GeneratedColor,
   PersistedDayEntry,
   ProfileStatsResponse,
 } from "@onecolor/shared";
-import { dayPalette, findPaletteColor, makeEntry } from "@onecolor/shared";
+import { generateDayPalette, isGeneratedColor, makeEntry } from "@onecolor/shared";
 import { ApiRequestError, api } from "../lib/api";
 import { getTodayId, getMonthId, shiftMonthId } from "../lib/dates";
 import { getAnonymousUserId } from "../lib/identity";
@@ -26,9 +26,9 @@ import {
   upsertPendingEntry,
 } from "./sync";
 
-const draftKey = "onecolor:draft-v2";
+const draftKey = "onecolor:draft-v3";
 const onboardingKey = "onecolor:onboarding-seen";
-const pendingEntriesKey = "onecolor:pending-entries-v1";
+const pendingEntriesKey = "onecolor:pending-entries-v2";
 const dateIdPattern = /^\d{4}-\d{2}-\d{2}$/;
 
 type OperationStatus = {
@@ -40,7 +40,7 @@ type ProfileStats = ProfileStatsResponse["stats"];
 
 type AppStateValue = {
   anonymousUserId: string | null;
-  colors: PaletteColor[];
+  colors: GeneratedColor[];
   completeWords: [string, string, string] | null;
   currentMonth: string;
   draft: Draft;
@@ -58,7 +58,7 @@ type AppStateValue = {
   ready: boolean;
   returnedColorsByDate: Record<string, ColorReaction[]>;
   saveStatus: OperationStatus;
-  selectedColor: PaletteColor;
+  selectedColor: GeneratedColor;
   selectedDate: string;
   todayId: string;
   discardPendingEntry: (date: string) => Promise<void>;
@@ -79,9 +79,9 @@ type AppStateValue = {
   resetDraft: (nextDraft?: Draft) => Promise<void>;
   retryPendingEntry: (date: string, forceOverwrite?: boolean) => Promise<boolean>;
   retryPendingEntries: () => Promise<void>;
-  returnColor: (entryId: string, colorName: string) => Promise<boolean>;
+  returnColor: (entry: FeedEntry, color: GeneratedColor) => Promise<boolean>;
   saveDraft: () => Promise<boolean>;
-  setSelectedColor: (color: PaletteColor) => void;
+  setSelectedColor: (color: GeneratedColor) => void;
   setSelectedDate: (date: string) => void;
   setWord: (index: number, value: string) => void;
 };
@@ -97,7 +97,7 @@ const emptyStats: ProfileStats = {
 };
 
 const createDraft = (date: string): Draft => ({
-  colorName: "遠い青",
+  color: null,
   date,
   words: ["", "", ""],
 });
@@ -125,12 +125,17 @@ const getConflictEntry = (error: unknown) => {
   return body?.entry ?? null;
 };
 
+const isSameGeneratedColor = (a: GeneratedColor, b: GeneratedColor) =>
+  a.index === b.index &&
+  a.hex.toUpperCase() === b.hex.toUpperCase() &&
+  a.label === b.label &&
+  a.algorithmVersion === b.algorithmVersion;
+
 const AppStateContext = createContext<AppStateValue | null>(null);
 
 export function AppStateProvider({ children }: { children: ReactNode }) {
   const [todayId, setTodayId] = useState(() => getTodayId());
   const [anonymousUserId, setAnonymousUserId] = useState<string | null>(null);
-  const [colors, setColors] = useState(dayPalette);
   const [currentMonth, setCurrentMonth] = useState(() => getMonthId(new Date()));
   const [draft, setDraft] = useState<Draft>(() => createDraft(todayId));
   const [entryCache, setEntryCache] = useState<Record<string, PersistedDayEntry>>({});
@@ -161,10 +166,6 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     () => new Map(Object.values(entryCache).map((entry) => [entry.date, entry])),
     [entryCache],
   );
-  const selectedColor = useMemo(
-    () => findPaletteColor(draft.colorName),
-    [draft.colorName],
-  );
   const completeWords = useMemo(() => {
     const trimmed = draft.words.map((word) => word.trim()) as [
       string,
@@ -173,6 +174,16 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     ];
     return trimmed.every((word) => word.length > 0) ? trimmed : null;
   }, [draft.words]);
+  const colors = useMemo(
+    () => generateDayPalette({ date: draft.date, words: completeWords ?? draft.words }),
+    [completeWords, draft.date, draft.words],
+  );
+  const selectedColor = useMemo(() => {
+    const draftColor = draft.color;
+    return draftColor && colors.some((color) => isSameGeneratedColor(color, draftColor))
+      ? draftColor
+      : colors[0]!;
+  }, [colors, draft.color]);
 
   const upsertEntryCache = useCallback((entry: PersistedDayEntry) => {
     setEntryCache((current) => ({
@@ -195,7 +206,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     (date: string) => {
       const pendingEntry = pendingEntries[date];
       if (pendingEntry && pendingEntry.status !== "conflict") {
-        return makeEntry(pendingEntry.date, pendingEntry.words, pendingEntry.colorName);
+        return makeEntry(pendingEntry.date, pendingEntry.words, pendingEntry.color);
       }
 
       const apiEntry = entriesByDate.get(date);
@@ -204,12 +215,12 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       }
 
       if (date === draft.date && completeWords) {
-        return makeEntry(draft.date, completeWords, draft.colorName);
+        return makeEntry(draft.date, completeWords, selectedColor);
       }
 
       return undefined;
     },
-    [completeWords, draft.colorName, draft.date, entriesByDate, pendingEntries],
+    [completeWords, draft.date, entriesByDate, pendingEntries, selectedColor],
   );
 
   const getEntryStatus = useCallback(
@@ -294,11 +305,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
 
     setEntriesStatus({ error: null, loading: true });
     try {
-      const [paletteResponse, entriesResponse] = await Promise.all([
-        api.palette(anonymousUserId),
-        api.entries(anonymousUserId, currentMonth),
-      ]);
-      setColors(paletteResponse.colors);
+      const entriesResponse = await api.entries(anonymousUserId, currentMonth);
       setEntryCache((current) => {
         const next = { ...current };
         for (const entry of entriesResponse.entries) {
@@ -385,7 +392,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       try {
         const response = await api.saveEntry(anonymousUserId, pendingEntry.date, {
           words: pendingEntry.words,
-          colorName: pendingEntry.colorName,
+          color: pendingEntry.color,
           baseUpdatedAt: forceOverwrite ? null : pendingEntry.baseUpdatedAt,
           clientMutationId: pendingEntry.clientMutationId,
         });
@@ -439,24 +446,24 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const returnColor = useCallback(
-    async (entryId: string, colorName: string) => {
+    async (entry: FeedEntry, color: GeneratedColor) => {
       if (!anonymousUserId) {
         return false;
       }
 
       setReactionStatus({ error: null, loading: true });
       try {
-        const response = await api.returnColor(anonymousUserId, entryId, {
-          colorName,
+        const response = await api.returnColor(anonymousUserId, entry.entryId, {
+          color,
         });
         setFeedEntries((current) =>
-          current.map((entry) =>
-            entry.entryId === entryId
+          current.map((feedEntry) =>
+            feedEntry.entryId === entry.entryId
               ? {
-                  ...entry,
+                  ...feedEntry,
                   returnedColor: response.reaction,
                 }
-              : entry,
+              : feedEntry,
           ),
         );
         setReactionStatus({ error: null, loading: false });
@@ -493,11 +500,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
           if (
             Array.isArray(savedDraft.words) &&
             savedDraft.words.length === 3 &&
-            typeof savedDraft.colorName === "string"
+            (savedDraft.color === null || isGeneratedColor(savedDraft.color))
           ) {
             const date = normalizeDateId(savedDraft.date, todayId);
             const restoredDraft = {
-              colorName: savedDraft.colorName,
+              color: savedDraft.color ?? null,
               date,
               words: savedDraft.words.map((word) => String(word).slice(0, 8)) as [
                 string,
@@ -604,14 +611,14 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     setDraft((current) => {
       const words = [...current.words] as [string, string, string];
       words[index] = value.slice(0, 8);
-      return { ...current, words };
+      return { ...current, color: null, words };
     });
   }, []);
 
-  const setSelectedColor = useCallback((color: PaletteColor) => {
+  const setSelectedColor = useCallback((color: GeneratedColor) => {
     setDraft((current) => ({
       ...current,
-      colorName: color.name,
+      color,
     }));
   }, []);
 
@@ -644,7 +651,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     const pendingEntry: PendingEntry = {
       baseUpdatedAt: persistedEntry?.updatedAt ?? null,
       clientMutationId,
-      colorName: draft.colorName,
+      color: selectedColor,
       date: draft.date,
       queuedAt: new Date().toISOString(),
       status: "queued",
@@ -655,7 +662,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
     try {
       const response = await api.saveEntry(anonymousUserId, draft.date, {
         words: completeWords,
-        colorName: draft.colorName,
+        color: selectedColor,
         baseUpdatedAt: pendingEntry.baseUpdatedAt,
         clientMutationId,
       });
@@ -708,11 +715,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [
     anonymousUserId,
     completeWords,
-    draft.colorName,
     draft.date,
     entriesByDate,
     queuePendingEntry,
     refreshProfileStats,
+    selectedColor,
     upsertEntryCache,
   ]);
 

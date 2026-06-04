@@ -20,8 +20,18 @@ export type EntryModel = runtime.Types.Result.DefaultSelection<Prisma.$EntryPayl
 
 export type AggregateEntry = {
   _count: EntryCountAggregateOutputType | null
+  _avg: EntryAvgAggregateOutputType | null
+  _sum: EntrySumAggregateOutputType | null
   _min: EntryMinAggregateOutputType | null
   _max: EntryMaxAggregateOutputType | null
+}
+
+export type EntryAvgAggregateOutputType = {
+  colorIndex: number | null
+}
+
+export type EntrySumAggregateOutputType = {
+  colorIndex: number | null
 }
 
 export type EntryMinAggregateOutputType = {
@@ -31,9 +41,11 @@ export type EntryMinAggregateOutputType = {
   word1: string | null
   word2: string | null
   word3: string | null
-  colorName: string | null
+  colorLabel: string | null
   colorHex: string | null
   textColor: string | null
+  colorIndex: number | null
+  colorAlgorithmVersion: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -45,9 +57,11 @@ export type EntryMaxAggregateOutputType = {
   word1: string | null
   word2: string | null
   word3: string | null
-  colorName: string | null
+  colorLabel: string | null
   colorHex: string | null
   textColor: string | null
+  colorIndex: number | null
+  colorAlgorithmVersion: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,14 +73,24 @@ export type EntryCountAggregateOutputType = {
   word1: number
   word2: number
   word3: number
-  colorName: number
+  colorLabel: number
   colorHex: number
   textColor: number
+  colorIndex: number
+  colorAlgorithmVersion: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
+
+export type EntryAvgAggregateInputType = {
+  colorIndex?: true
+}
+
+export type EntrySumAggregateInputType = {
+  colorIndex?: true
+}
 
 export type EntryMinAggregateInputType = {
   id?: true
@@ -75,9 +99,11 @@ export type EntryMinAggregateInputType = {
   word1?: true
   word2?: true
   word3?: true
-  colorName?: true
+  colorLabel?: true
   colorHex?: true
   textColor?: true
+  colorIndex?: true
+  colorAlgorithmVersion?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -89,9 +115,11 @@ export type EntryMaxAggregateInputType = {
   word1?: true
   word2?: true
   word3?: true
-  colorName?: true
+  colorLabel?: true
   colorHex?: true
   textColor?: true
+  colorIndex?: true
+  colorAlgorithmVersion?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -103,9 +131,11 @@ export type EntryCountAggregateInputType = {
   word1?: true
   word2?: true
   word3?: true
-  colorName?: true
+  colorLabel?: true
   colorHex?: true
   textColor?: true
+  colorIndex?: true
+  colorAlgorithmVersion?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -149,6 +179,18 @@ export type EntryAggregateArgs<ExtArgs extends runtime.Types.Extensions.Internal
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: EntryAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: EntrySumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: EntryMinAggregateInputType
@@ -179,6 +221,8 @@ export type EntryGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
   take?: number
   skip?: number
   _count?: EntryCountAggregateInputType | true
+  _avg?: EntryAvgAggregateInputType
+  _sum?: EntrySumAggregateInputType
   _min?: EntryMinAggregateInputType
   _max?: EntryMaxAggregateInputType
 }
@@ -190,12 +234,16 @@ export type EntryGroupByOutputType = {
   word1: string
   word2: string
   word3: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt: Date
   updatedAt: Date
   _count: EntryCountAggregateOutputType | null
+  _avg: EntryAvgAggregateOutputType | null
+  _sum: EntrySumAggregateOutputType | null
   _min: EntryMinAggregateOutputType | null
   _max: EntryMaxAggregateOutputType | null
 }
@@ -225,9 +273,11 @@ export type EntryWhereInput = {
   word1?: Prisma.StringFilter<"Entry"> | string
   word2?: Prisma.StringFilter<"Entry"> | string
   word3?: Prisma.StringFilter<"Entry"> | string
-  colorName?: Prisma.StringFilter<"Entry"> | string
+  colorLabel?: Prisma.StringFilter<"Entry"> | string
   colorHex?: Prisma.StringFilter<"Entry"> | string
   textColor?: Prisma.StringFilter<"Entry"> | string
+  colorIndex?: Prisma.IntFilter<"Entry"> | number
+  colorAlgorithmVersion?: Prisma.StringFilter<"Entry"> | string
   createdAt?: Prisma.DateTimeFilter<"Entry"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Entry"> | Date | string
   colorReactions?: Prisma.ColorReactionListRelationFilter
@@ -241,9 +291,11 @@ export type EntryOrderByWithRelationInput = {
   word1?: Prisma.SortOrder
   word2?: Prisma.SortOrder
   word3?: Prisma.SortOrder
-  colorName?: Prisma.SortOrder
+  colorLabel?: Prisma.SortOrder
   colorHex?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
+  colorIndex?: Prisma.SortOrder
+  colorAlgorithmVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   colorReactions?: Prisma.ColorReactionOrderByRelationAggregateInput
@@ -261,9 +313,11 @@ export type EntryWhereUniqueInput = Prisma.AtLeast<{
   word1?: Prisma.StringFilter<"Entry"> | string
   word2?: Prisma.StringFilter<"Entry"> | string
   word3?: Prisma.StringFilter<"Entry"> | string
-  colorName?: Prisma.StringFilter<"Entry"> | string
+  colorLabel?: Prisma.StringFilter<"Entry"> | string
   colorHex?: Prisma.StringFilter<"Entry"> | string
   textColor?: Prisma.StringFilter<"Entry"> | string
+  colorIndex?: Prisma.IntFilter<"Entry"> | number
+  colorAlgorithmVersion?: Prisma.StringFilter<"Entry"> | string
   createdAt?: Prisma.DateTimeFilter<"Entry"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Entry"> | Date | string
   colorReactions?: Prisma.ColorReactionListRelationFilter
@@ -277,14 +331,18 @@ export type EntryOrderByWithAggregationInput = {
   word1?: Prisma.SortOrder
   word2?: Prisma.SortOrder
   word3?: Prisma.SortOrder
-  colorName?: Prisma.SortOrder
+  colorLabel?: Prisma.SortOrder
   colorHex?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
+  colorIndex?: Prisma.SortOrder
+  colorAlgorithmVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.EntryCountOrderByAggregateInput
+  _avg?: Prisma.EntryAvgOrderByAggregateInput
   _max?: Prisma.EntryMaxOrderByAggregateInput
   _min?: Prisma.EntryMinOrderByAggregateInput
+  _sum?: Prisma.EntrySumOrderByAggregateInput
 }
 
 export type EntryScalarWhereWithAggregatesInput = {
@@ -297,9 +355,11 @@ export type EntryScalarWhereWithAggregatesInput = {
   word1?: Prisma.StringWithAggregatesFilter<"Entry"> | string
   word2?: Prisma.StringWithAggregatesFilter<"Entry"> | string
   word3?: Prisma.StringWithAggregatesFilter<"Entry"> | string
-  colorName?: Prisma.StringWithAggregatesFilter<"Entry"> | string
+  colorLabel?: Prisma.StringWithAggregatesFilter<"Entry"> | string
   colorHex?: Prisma.StringWithAggregatesFilter<"Entry"> | string
   textColor?: Prisma.StringWithAggregatesFilter<"Entry"> | string
+  colorIndex?: Prisma.IntWithAggregatesFilter<"Entry"> | number
+  colorAlgorithmVersion?: Prisma.StringWithAggregatesFilter<"Entry"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Entry"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Entry"> | Date | string
 }
@@ -310,9 +370,11 @@ export type EntryCreateInput = {
   word1: string
   word2: string
   word3: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
   colorReactions?: Prisma.ColorReactionCreateNestedManyWithoutEntryInput
@@ -326,9 +388,11 @@ export type EntryUncheckedCreateInput = {
   word1: string
   word2: string
   word3: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
   colorReactions?: Prisma.ColorReactionUncheckedCreateNestedManyWithoutEntryInput
@@ -340,9 +404,11 @@ export type EntryUpdateInput = {
   word1?: Prisma.StringFieldUpdateOperationsInput | string
   word2?: Prisma.StringFieldUpdateOperationsInput | string
   word3?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   colorReactions?: Prisma.ColorReactionUpdateManyWithoutEntryNestedInput
@@ -356,9 +422,11 @@ export type EntryUncheckedUpdateInput = {
   word1?: Prisma.StringFieldUpdateOperationsInput | string
   word2?: Prisma.StringFieldUpdateOperationsInput | string
   word3?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   colorReactions?: Prisma.ColorReactionUncheckedUpdateManyWithoutEntryNestedInput
@@ -371,9 +439,11 @@ export type EntryCreateManyInput = {
   word1: string
   word2: string
   word3: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -384,9 +454,11 @@ export type EntryUpdateManyMutationInput = {
   word1?: Prisma.StringFieldUpdateOperationsInput | string
   word2?: Prisma.StringFieldUpdateOperationsInput | string
   word3?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -398,9 +470,11 @@ export type EntryUncheckedUpdateManyInput = {
   word1?: Prisma.StringFieldUpdateOperationsInput | string
   word2?: Prisma.StringFieldUpdateOperationsInput | string
   word3?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -427,11 +501,17 @@ export type EntryCountOrderByAggregateInput = {
   word1?: Prisma.SortOrder
   word2?: Prisma.SortOrder
   word3?: Prisma.SortOrder
-  colorName?: Prisma.SortOrder
+  colorLabel?: Prisma.SortOrder
   colorHex?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
+  colorIndex?: Prisma.SortOrder
+  colorAlgorithmVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type EntryAvgOrderByAggregateInput = {
+  colorIndex?: Prisma.SortOrder
 }
 
 export type EntryMaxOrderByAggregateInput = {
@@ -441,9 +521,11 @@ export type EntryMaxOrderByAggregateInput = {
   word1?: Prisma.SortOrder
   word2?: Prisma.SortOrder
   word3?: Prisma.SortOrder
-  colorName?: Prisma.SortOrder
+  colorLabel?: Prisma.SortOrder
   colorHex?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
+  colorIndex?: Prisma.SortOrder
+  colorAlgorithmVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -455,11 +537,17 @@ export type EntryMinOrderByAggregateInput = {
   word1?: Prisma.SortOrder
   word2?: Prisma.SortOrder
   word3?: Prisma.SortOrder
-  colorName?: Prisma.SortOrder
+  colorLabel?: Prisma.SortOrder
   colorHex?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
+  colorIndex?: Prisma.SortOrder
+  colorAlgorithmVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type EntrySumOrderByAggregateInput = {
+  colorIndex?: Prisma.SortOrder
 }
 
 export type EntryScalarRelationFilter = {
@@ -509,6 +597,14 @@ export type EntryUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.EntryScalarWhereInput | Prisma.EntryScalarWhereInput[]
 }
 
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type EntryCreateNestedOneWithoutColorReactionsInput = {
   create?: Prisma.XOR<Prisma.EntryCreateWithoutColorReactionsInput, Prisma.EntryUncheckedCreateWithoutColorReactionsInput>
   connectOrCreate?: Prisma.EntryCreateOrConnectWithoutColorReactionsInput
@@ -529,9 +625,11 @@ export type EntryCreateWithoutUserInput = {
   word1: string
   word2: string
   word3: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
   colorReactions?: Prisma.ColorReactionCreateNestedManyWithoutEntryInput
@@ -543,9 +641,11 @@ export type EntryUncheckedCreateWithoutUserInput = {
   word1: string
   word2: string
   word3: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
   colorReactions?: Prisma.ColorReactionUncheckedCreateNestedManyWithoutEntryInput
@@ -586,9 +686,11 @@ export type EntryScalarWhereInput = {
   word1?: Prisma.StringFilter<"Entry"> | string
   word2?: Prisma.StringFilter<"Entry"> | string
   word3?: Prisma.StringFilter<"Entry"> | string
-  colorName?: Prisma.StringFilter<"Entry"> | string
+  colorLabel?: Prisma.StringFilter<"Entry"> | string
   colorHex?: Prisma.StringFilter<"Entry"> | string
   textColor?: Prisma.StringFilter<"Entry"> | string
+  colorIndex?: Prisma.IntFilter<"Entry"> | number
+  colorAlgorithmVersion?: Prisma.StringFilter<"Entry"> | string
   createdAt?: Prisma.DateTimeFilter<"Entry"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Entry"> | Date | string
 }
@@ -599,9 +701,11 @@ export type EntryCreateWithoutColorReactionsInput = {
   word1: string
   word2: string
   word3: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutEntriesInput
@@ -614,9 +718,11 @@ export type EntryUncheckedCreateWithoutColorReactionsInput = {
   word1: string
   word2: string
   word3: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -643,9 +749,11 @@ export type EntryUpdateWithoutColorReactionsInput = {
   word1?: Prisma.StringFieldUpdateOperationsInput | string
   word2?: Prisma.StringFieldUpdateOperationsInput | string
   word3?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutEntriesNestedInput
@@ -658,9 +766,11 @@ export type EntryUncheckedUpdateWithoutColorReactionsInput = {
   word1?: Prisma.StringFieldUpdateOperationsInput | string
   word2?: Prisma.StringFieldUpdateOperationsInput | string
   word3?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -671,9 +781,11 @@ export type EntryCreateManyUserInput = {
   word1: string
   word2: string
   word3: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -684,9 +796,11 @@ export type EntryUpdateWithoutUserInput = {
   word1?: Prisma.StringFieldUpdateOperationsInput | string
   word2?: Prisma.StringFieldUpdateOperationsInput | string
   word3?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   colorReactions?: Prisma.ColorReactionUpdateManyWithoutEntryNestedInput
@@ -698,9 +812,11 @@ export type EntryUncheckedUpdateWithoutUserInput = {
   word1?: Prisma.StringFieldUpdateOperationsInput | string
   word2?: Prisma.StringFieldUpdateOperationsInput | string
   word3?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   colorReactions?: Prisma.ColorReactionUncheckedUpdateManyWithoutEntryNestedInput
@@ -712,9 +828,11 @@ export type EntryUncheckedUpdateManyWithoutUserInput = {
   word1?: Prisma.StringFieldUpdateOperationsInput | string
   word2?: Prisma.StringFieldUpdateOperationsInput | string
   word3?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -757,9 +875,11 @@ export type EntrySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   word1?: boolean
   word2?: boolean
   word3?: boolean
-  colorName?: boolean
+  colorLabel?: boolean
   colorHex?: boolean
   textColor?: boolean
+  colorIndex?: boolean
+  colorAlgorithmVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   colorReactions?: boolean | Prisma.Entry$colorReactionsArgs<ExtArgs>
@@ -774,9 +894,11 @@ export type EntrySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   word1?: boolean
   word2?: boolean
   word3?: boolean
-  colorName?: boolean
+  colorLabel?: boolean
   colorHex?: boolean
   textColor?: boolean
+  colorIndex?: boolean
+  colorAlgorithmVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -789,9 +911,11 @@ export type EntrySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   word1?: boolean
   word2?: boolean
   word3?: boolean
-  colorName?: boolean
+  colorLabel?: boolean
   colorHex?: boolean
   textColor?: boolean
+  colorIndex?: boolean
+  colorAlgorithmVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -804,14 +928,16 @@ export type EntrySelectScalar = {
   word1?: boolean
   word2?: boolean
   word3?: boolean
-  colorName?: boolean
+  colorLabel?: boolean
   colorHex?: boolean
   textColor?: boolean
+  colorIndex?: boolean
+  colorAlgorithmVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type EntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "date" | "word1" | "word2" | "word3" | "colorName" | "colorHex" | "textColor" | "createdAt" | "updatedAt", ExtArgs["result"]["entry"]>
+export type EntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "date" | "word1" | "word2" | "word3" | "colorLabel" | "colorHex" | "textColor" | "colorIndex" | "colorAlgorithmVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["entry"]>
 export type EntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   colorReactions?: boolean | Prisma.Entry$colorReactionsArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -837,9 +963,11 @@ export type $EntryPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     word1: string
     word2: string
     word3: string
-    colorName: string
+    colorLabel: string
     colorHex: string
     textColor: string
+    colorIndex: number
+    colorAlgorithmVersion: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["entry"]>
@@ -1273,9 +1401,11 @@ export interface EntryFieldRefs {
   readonly word1: Prisma.FieldRef<"Entry", 'String'>
   readonly word2: Prisma.FieldRef<"Entry", 'String'>
   readonly word3: Prisma.FieldRef<"Entry", 'String'>
-  readonly colorName: Prisma.FieldRef<"Entry", 'String'>
+  readonly colorLabel: Prisma.FieldRef<"Entry", 'String'>
   readonly colorHex: Prisma.FieldRef<"Entry", 'String'>
   readonly textColor: Prisma.FieldRef<"Entry", 'String'>
+  readonly colorIndex: Prisma.FieldRef<"Entry", 'Int'>
+  readonly colorAlgorithmVersion: Prisma.FieldRef<"Entry", 'String'>
   readonly createdAt: Prisma.FieldRef<"Entry", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Entry", 'DateTime'>
 }

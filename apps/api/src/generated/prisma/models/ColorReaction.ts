@@ -20,17 +20,29 @@ export type ColorReactionModel = runtime.Types.Result.DefaultSelection<Prisma.$C
 
 export type AggregateColorReaction = {
   _count: ColorReactionCountAggregateOutputType | null
+  _avg: ColorReactionAvgAggregateOutputType | null
+  _sum: ColorReactionSumAggregateOutputType | null
   _min: ColorReactionMinAggregateOutputType | null
   _max: ColorReactionMaxAggregateOutputType | null
+}
+
+export type ColorReactionAvgAggregateOutputType = {
+  colorIndex: number | null
+}
+
+export type ColorReactionSumAggregateOutputType = {
+  colorIndex: number | null
 }
 
 export type ColorReactionMinAggregateOutputType = {
   id: string | null
   entryId: string | null
   userId: string | null
-  colorName: string | null
+  colorLabel: string | null
   colorHex: string | null
   textColor: string | null
+  colorIndex: number | null
+  colorAlgorithmVersion: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -39,9 +51,11 @@ export type ColorReactionMaxAggregateOutputType = {
   id: string | null
   entryId: string | null
   userId: string | null
-  colorName: string | null
+  colorLabel: string | null
   colorHex: string | null
   textColor: string | null
+  colorIndex: number | null
+  colorAlgorithmVersion: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -50,22 +64,34 @@ export type ColorReactionCountAggregateOutputType = {
   id: number
   entryId: number
   userId: number
-  colorName: number
+  colorLabel: number
   colorHex: number
   textColor: number
+  colorIndex: number
+  colorAlgorithmVersion: number
   createdAt: number
   updatedAt: number
   _all: number
 }
 
 
+export type ColorReactionAvgAggregateInputType = {
+  colorIndex?: true
+}
+
+export type ColorReactionSumAggregateInputType = {
+  colorIndex?: true
+}
+
 export type ColorReactionMinAggregateInputType = {
   id?: true
   entryId?: true
   userId?: true
-  colorName?: true
+  colorLabel?: true
   colorHex?: true
   textColor?: true
+  colorIndex?: true
+  colorAlgorithmVersion?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -74,9 +100,11 @@ export type ColorReactionMaxAggregateInputType = {
   id?: true
   entryId?: true
   userId?: true
-  colorName?: true
+  colorLabel?: true
   colorHex?: true
   textColor?: true
+  colorIndex?: true
+  colorAlgorithmVersion?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -85,9 +113,11 @@ export type ColorReactionCountAggregateInputType = {
   id?: true
   entryId?: true
   userId?: true
-  colorName?: true
+  colorLabel?: true
   colorHex?: true
   textColor?: true
+  colorIndex?: true
+  colorAlgorithmVersion?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -131,6 +161,18 @@ export type ColorReactionAggregateArgs<ExtArgs extends runtime.Types.Extensions.
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: ColorReactionAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: ColorReactionSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: ColorReactionMinAggregateInputType
@@ -161,6 +203,8 @@ export type ColorReactionGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   _count?: ColorReactionCountAggregateInputType | true
+  _avg?: ColorReactionAvgAggregateInputType
+  _sum?: ColorReactionSumAggregateInputType
   _min?: ColorReactionMinAggregateInputType
   _max?: ColorReactionMaxAggregateInputType
 }
@@ -169,12 +213,16 @@ export type ColorReactionGroupByOutputType = {
   id: string
   entryId: string
   userId: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt: Date
   updatedAt: Date
   _count: ColorReactionCountAggregateOutputType | null
+  _avg: ColorReactionAvgAggregateOutputType | null
+  _sum: ColorReactionSumAggregateOutputType | null
   _min: ColorReactionMinAggregateOutputType | null
   _max: ColorReactionMaxAggregateOutputType | null
 }
@@ -201,9 +249,11 @@ export type ColorReactionWhereInput = {
   id?: Prisma.StringFilter<"ColorReaction"> | string
   entryId?: Prisma.StringFilter<"ColorReaction"> | string
   userId?: Prisma.StringFilter<"ColorReaction"> | string
-  colorName?: Prisma.StringFilter<"ColorReaction"> | string
+  colorLabel?: Prisma.StringFilter<"ColorReaction"> | string
   colorHex?: Prisma.StringFilter<"ColorReaction"> | string
   textColor?: Prisma.StringFilter<"ColorReaction"> | string
+  colorIndex?: Prisma.IntFilter<"ColorReaction"> | number
+  colorAlgorithmVersion?: Prisma.StringFilter<"ColorReaction"> | string
   createdAt?: Prisma.DateTimeFilter<"ColorReaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ColorReaction"> | Date | string
   entry?: Prisma.XOR<Prisma.EntryScalarRelationFilter, Prisma.EntryWhereInput>
@@ -214,9 +264,11 @@ export type ColorReactionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   entryId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  colorName?: Prisma.SortOrder
+  colorLabel?: Prisma.SortOrder
   colorHex?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
+  colorIndex?: Prisma.SortOrder
+  colorAlgorithmVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   entry?: Prisma.EntryOrderByWithRelationInput
@@ -231,9 +283,11 @@ export type ColorReactionWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ColorReactionWhereInput | Prisma.ColorReactionWhereInput[]
   entryId?: Prisma.StringFilter<"ColorReaction"> | string
   userId?: Prisma.StringFilter<"ColorReaction"> | string
-  colorName?: Prisma.StringFilter<"ColorReaction"> | string
+  colorLabel?: Prisma.StringFilter<"ColorReaction"> | string
   colorHex?: Prisma.StringFilter<"ColorReaction"> | string
   textColor?: Prisma.StringFilter<"ColorReaction"> | string
+  colorIndex?: Prisma.IntFilter<"ColorReaction"> | number
+  colorAlgorithmVersion?: Prisma.StringFilter<"ColorReaction"> | string
   createdAt?: Prisma.DateTimeFilter<"ColorReaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ColorReaction"> | Date | string
   entry?: Prisma.XOR<Prisma.EntryScalarRelationFilter, Prisma.EntryWhereInput>
@@ -244,14 +298,18 @@ export type ColorReactionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   entryId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  colorName?: Prisma.SortOrder
+  colorLabel?: Prisma.SortOrder
   colorHex?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
+  colorIndex?: Prisma.SortOrder
+  colorAlgorithmVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ColorReactionCountOrderByAggregateInput
+  _avg?: Prisma.ColorReactionAvgOrderByAggregateInput
   _max?: Prisma.ColorReactionMaxOrderByAggregateInput
   _min?: Prisma.ColorReactionMinOrderByAggregateInput
+  _sum?: Prisma.ColorReactionSumOrderByAggregateInput
 }
 
 export type ColorReactionScalarWhereWithAggregatesInput = {
@@ -261,18 +319,22 @@ export type ColorReactionScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ColorReaction"> | string
   entryId?: Prisma.StringWithAggregatesFilter<"ColorReaction"> | string
   userId?: Prisma.StringWithAggregatesFilter<"ColorReaction"> | string
-  colorName?: Prisma.StringWithAggregatesFilter<"ColorReaction"> | string
+  colorLabel?: Prisma.StringWithAggregatesFilter<"ColorReaction"> | string
   colorHex?: Prisma.StringWithAggregatesFilter<"ColorReaction"> | string
   textColor?: Prisma.StringWithAggregatesFilter<"ColorReaction"> | string
+  colorIndex?: Prisma.IntWithAggregatesFilter<"ColorReaction"> | number
+  colorAlgorithmVersion?: Prisma.StringWithAggregatesFilter<"ColorReaction"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ColorReaction"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ColorReaction"> | Date | string
 }
 
 export type ColorReactionCreateInput = {
   id?: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
   entry: Prisma.EntryCreateNestedOneWithoutColorReactionsInput
@@ -283,18 +345,22 @@ export type ColorReactionUncheckedCreateInput = {
   id?: string
   entryId: string
   userId: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ColorReactionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entry?: Prisma.EntryUpdateOneRequiredWithoutColorReactionsNestedInput
@@ -305,9 +371,11 @@ export type ColorReactionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   entryId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -316,18 +384,22 @@ export type ColorReactionCreateManyInput = {
   id?: string
   entryId: string
   userId: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ColorReactionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -336,9 +408,11 @@ export type ColorReactionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   entryId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -362,20 +436,28 @@ export type ColorReactionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   entryId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  colorName?: Prisma.SortOrder
+  colorLabel?: Prisma.SortOrder
   colorHex?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
+  colorIndex?: Prisma.SortOrder
+  colorAlgorithmVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ColorReactionAvgOrderByAggregateInput = {
+  colorIndex?: Prisma.SortOrder
 }
 
 export type ColorReactionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   entryId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  colorName?: Prisma.SortOrder
+  colorLabel?: Prisma.SortOrder
   colorHex?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
+  colorIndex?: Prisma.SortOrder
+  colorAlgorithmVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -384,11 +466,17 @@ export type ColorReactionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   entryId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  colorName?: Prisma.SortOrder
+  colorLabel?: Prisma.SortOrder
   colorHex?: Prisma.SortOrder
   textColor?: Prisma.SortOrder
+  colorIndex?: Prisma.SortOrder
+  colorAlgorithmVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type ColorReactionSumOrderByAggregateInput = {
+  colorIndex?: Prisma.SortOrder
 }
 
 export type ColorReactionCreateNestedManyWithoutUserInput = {
@@ -477,9 +565,11 @@ export type ColorReactionUncheckedUpdateManyWithoutEntryNestedInput = {
 
 export type ColorReactionCreateWithoutUserInput = {
   id?: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
   entry: Prisma.EntryCreateNestedOneWithoutColorReactionsInput
@@ -488,9 +578,11 @@ export type ColorReactionCreateWithoutUserInput = {
 export type ColorReactionUncheckedCreateWithoutUserInput = {
   id?: string
   entryId: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -527,18 +619,22 @@ export type ColorReactionScalarWhereInput = {
   id?: Prisma.StringFilter<"ColorReaction"> | string
   entryId?: Prisma.StringFilter<"ColorReaction"> | string
   userId?: Prisma.StringFilter<"ColorReaction"> | string
-  colorName?: Prisma.StringFilter<"ColorReaction"> | string
+  colorLabel?: Prisma.StringFilter<"ColorReaction"> | string
   colorHex?: Prisma.StringFilter<"ColorReaction"> | string
   textColor?: Prisma.StringFilter<"ColorReaction"> | string
+  colorIndex?: Prisma.IntFilter<"ColorReaction"> | number
+  colorAlgorithmVersion?: Prisma.StringFilter<"ColorReaction"> | string
   createdAt?: Prisma.DateTimeFilter<"ColorReaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ColorReaction"> | Date | string
 }
 
 export type ColorReactionCreateWithoutEntryInput = {
   id?: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutColorReactionsInput
@@ -547,9 +643,11 @@ export type ColorReactionCreateWithoutEntryInput = {
 export type ColorReactionUncheckedCreateWithoutEntryInput = {
   id?: string
   userId: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -582,18 +680,22 @@ export type ColorReactionUpdateManyWithWhereWithoutEntryInput = {
 export type ColorReactionCreateManyUserInput = {
   id?: string
   entryId: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ColorReactionUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entry?: Prisma.EntryUpdateOneRequiredWithoutColorReactionsNestedInput
@@ -602,9 +704,11 @@ export type ColorReactionUpdateWithoutUserInput = {
 export type ColorReactionUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   entryId?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -612,9 +716,11 @@ export type ColorReactionUncheckedUpdateWithoutUserInput = {
 export type ColorReactionUncheckedUpdateManyWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   entryId?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -622,18 +728,22 @@ export type ColorReactionUncheckedUpdateManyWithoutUserInput = {
 export type ColorReactionCreateManyEntryInput = {
   id?: string
   userId: string
-  colorName: string
+  colorLabel: string
   colorHex: string
   textColor: string
+  colorIndex: number
+  colorAlgorithmVersion: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type ColorReactionUpdateWithoutEntryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutColorReactionsNestedInput
@@ -642,9 +752,11 @@ export type ColorReactionUpdateWithoutEntryInput = {
 export type ColorReactionUncheckedUpdateWithoutEntryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -652,9 +764,11 @@ export type ColorReactionUncheckedUpdateWithoutEntryInput = {
 export type ColorReactionUncheckedUpdateManyWithoutEntryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  colorName?: Prisma.StringFieldUpdateOperationsInput | string
+  colorLabel?: Prisma.StringFieldUpdateOperationsInput | string
   colorHex?: Prisma.StringFieldUpdateOperationsInput | string
   textColor?: Prisma.StringFieldUpdateOperationsInput | string
+  colorIndex?: Prisma.IntFieldUpdateOperationsInput | number
+  colorAlgorithmVersion?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -665,9 +779,11 @@ export type ColorReactionSelect<ExtArgs extends runtime.Types.Extensions.Interna
   id?: boolean
   entryId?: boolean
   userId?: boolean
-  colorName?: boolean
+  colorLabel?: boolean
   colorHex?: boolean
   textColor?: boolean
+  colorIndex?: boolean
+  colorAlgorithmVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   entry?: boolean | Prisma.EntryDefaultArgs<ExtArgs>
@@ -678,9 +794,11 @@ export type ColorReactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   entryId?: boolean
   userId?: boolean
-  colorName?: boolean
+  colorLabel?: boolean
   colorHex?: boolean
   textColor?: boolean
+  colorIndex?: boolean
+  colorAlgorithmVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   entry?: boolean | Prisma.EntryDefaultArgs<ExtArgs>
@@ -691,9 +809,11 @@ export type ColorReactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   entryId?: boolean
   userId?: boolean
-  colorName?: boolean
+  colorLabel?: boolean
   colorHex?: boolean
   textColor?: boolean
+  colorIndex?: boolean
+  colorAlgorithmVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   entry?: boolean | Prisma.EntryDefaultArgs<ExtArgs>
@@ -704,14 +824,16 @@ export type ColorReactionSelectScalar = {
   id?: boolean
   entryId?: boolean
   userId?: boolean
-  colorName?: boolean
+  colorLabel?: boolean
   colorHex?: boolean
   textColor?: boolean
+  colorIndex?: boolean
+  colorAlgorithmVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ColorReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "entryId" | "userId" | "colorName" | "colorHex" | "textColor" | "createdAt" | "updatedAt", ExtArgs["result"]["colorReaction"]>
+export type ColorReactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "entryId" | "userId" | "colorLabel" | "colorHex" | "textColor" | "colorIndex" | "colorAlgorithmVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["colorReaction"]>
 export type ColorReactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   entry?: boolean | Prisma.EntryDefaultArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -735,9 +857,11 @@ export type $ColorReactionPayload<ExtArgs extends runtime.Types.Extensions.Inter
     id: string
     entryId: string
     userId: string
-    colorName: string
+    colorLabel: string
     colorHex: string
     textColor: string
+    colorIndex: number
+    colorAlgorithmVersion: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["colorReaction"]>
@@ -1168,9 +1292,11 @@ export interface ColorReactionFieldRefs {
   readonly id: Prisma.FieldRef<"ColorReaction", 'String'>
   readonly entryId: Prisma.FieldRef<"ColorReaction", 'String'>
   readonly userId: Prisma.FieldRef<"ColorReaction", 'String'>
-  readonly colorName: Prisma.FieldRef<"ColorReaction", 'String'>
+  readonly colorLabel: Prisma.FieldRef<"ColorReaction", 'String'>
   readonly colorHex: Prisma.FieldRef<"ColorReaction", 'String'>
   readonly textColor: Prisma.FieldRef<"ColorReaction", 'String'>
+  readonly colorIndex: Prisma.FieldRef<"ColorReaction", 'Int'>
+  readonly colorAlgorithmVersion: Prisma.FieldRef<"ColorReaction", 'String'>
   readonly createdAt: Prisma.FieldRef<"ColorReaction", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ColorReaction", 'DateTime'>
 }

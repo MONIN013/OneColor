@@ -679,9 +679,11 @@ export const EntryScalarFieldEnum = {
   word1: 'word1',
   word2: 'word2',
   word3: 'word3',
-  colorName: 'colorName',
+  colorLabel: 'colorLabel',
   colorHex: 'colorHex',
   textColor: 'textColor',
+  colorIndex: 'colorIndex',
+  colorAlgorithmVersion: 'colorAlgorithmVersion',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -693,9 +695,11 @@ export const ColorReactionScalarFieldEnum = {
   id: 'id',
   entryId: 'entryId',
   userId: 'userId',
-  colorName: 'colorName',
+  colorLabel: 'colorLabel',
   colorHex: 'colorHex',
   textColor: 'textColor',
+  colorIndex: 'colorIndex',
+  colorAlgorithmVersion: 'colorAlgorithmVersion',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -735,6 +739,13 @@ export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
     
 
 /**

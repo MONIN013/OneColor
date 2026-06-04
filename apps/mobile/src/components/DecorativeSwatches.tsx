@@ -1,13 +1,12 @@
 import { StyleSheet, View } from "react-native";
 import type { StyleProp, ViewStyle } from "react-native";
-import { dayPalette } from "@onecolor/shared";
+import { generateDayPalette } from "@onecolor/shared";
 import { radii, shadowSoft } from "../theme";
 
-const swatchColors = [
-  dayPalette[6]?.hex ?? "#5F7E96",
-  dayPalette[14]?.hex ?? "#D69A5C",
-  dayPalette[10]?.hex ?? "#415D52",
-];
+const swatchColors = generateDayPalette({
+  date: "2026-06-02",
+  words: ["雨", "改札", "朝"],
+}).slice(0, 3).map((color) => color.hex);
 
 type DecorativeSwatchesProps = {
   size?: number;

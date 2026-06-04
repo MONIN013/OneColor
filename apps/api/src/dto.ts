@@ -1,4 +1,4 @@
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsISO8601, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Max, MaxLength, Min, ValidateBy, validateSync } from "class-validator";
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsDefined, IsHexColor, IsISO8601, IsIn, IsInt, IsNotEmpty, IsOptional, IsString, IsUUID, Max, MaxLength, Min, ValidateBy, ValidateNested, validateSync } from "class-validator";
 import { Type, plainToInstance } from "class-transformer";
 import { BadRequestException } from "@nestjs/common";
 
@@ -86,6 +86,27 @@ export class FeedQueryDto {
   limit: number = 20;
 }
 
+export class GeneratedColorDto {
+  @IsInt()
+  @Min(0)
+  @Max(23)
+  index!: number;
+
+  @IsString()
+  @IsNotEmpty()
+  @MaxLength(12)
+  label!: string;
+
+  @IsHexColor()
+  hex!: string;
+
+  @IsIn(["#29241F", "#FFF9F1"])
+  textColor!: string;
+
+  @IsIn(["rgb24-v1"])
+  algorithmVersion!: "rgb24-v1";
+}
+
 export class SaveEntryDto {
   @IsArray()
   @ArrayMinSize(3)
@@ -95,9 +116,10 @@ export class SaveEntryDto {
   @MaxLength(8, { each: true })
   words!: [string, string, string];
 
-  @IsString()
-  @IsNotEmpty()
-  colorName!: string;
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => GeneratedColorDto)
+  color!: GeneratedColorDto;
 
   @IsOptional()
   @IsISO8601()
@@ -110,7 +132,8 @@ export class SaveEntryDto {
 }
 
 export class SaveColorReactionDto {
-  @IsString()
-  @IsNotEmpty()
-  colorName!: string;
+  @IsDefined()
+  @ValidateNested()
+  @Type(() => GeneratedColorDto)
+  color!: GeneratedColorDto;
 }

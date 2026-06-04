@@ -1,7 +1,8 @@
-import type { PersistedDayEntry } from "@onecolor/shared";
+import type { GeneratedColor, PersistedDayEntry } from "@onecolor/shared";
+import { isGeneratedColor } from "@onecolor/shared";
 
 export type Draft = {
-  colorName: string;
+  color: GeneratedColor | null;
   date: string;
   words: [string, string, string];
 };
@@ -11,7 +12,7 @@ export type PendingEntryStatus = "queued" | "syncing" | "failed" | "conflict";
 export type PendingEntry = {
   baseUpdatedAt: string | null;
   clientMutationId: string;
-  colorName: string;
+  color: GeneratedColor;
   date: string;
   lastError?: string;
   queuedAt: string;
@@ -87,7 +88,7 @@ const isPendingEntry = (value: unknown): value is PendingEntry => {
     Array.isArray(item.words) &&
     item.words.length === 3 &&
     item.words.every((word) => typeof word === "string") &&
-    typeof item.colorName === "string" &&
+    isGeneratedColor(item.color) &&
     typeof item.clientMutationId === "string" &&
     typeof item.queuedAt === "string" &&
     (item.baseUpdatedAt === null || typeof item.baseUpdatedAt === "string") &&

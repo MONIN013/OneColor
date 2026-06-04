@@ -22,9 +22,11 @@ model Entry {
   word1          String
   word2          String
   word3          String
-  colorName      String
-  colorHex       String
-  textColor      String
+  colorLabel            String
+  colorHex              String
+  textColor             String
+  colorIndex            Int
+  colorAlgorithmVersion String
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
   colorReactions ColorReaction[]
@@ -39,9 +41,11 @@ model ColorReaction {
   id        String   @id @default(uuid())
   entryId   String
   userId    String
-  colorName String
-  colorHex  String
-  textColor String
+  colorLabel            String
+  colorHex              String
+  textColor             String
+  colorIndex            Int
+  colorAlgorithmVersion String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

@@ -24,7 +24,7 @@ export default function ColorScreen() {
     todayId,
   } = useAppState();
   const words = completeWords ?? draft.words;
-  const selectedTextColor = selectedColor.recommendedText;
+  const selectedTextColor = selectedColor.textColor;
 
   const save = async () => {
     const ok = await saveDraft();
@@ -94,7 +94,7 @@ export default function ColorScreen() {
             numberOfLines={1}
             style={[styles.previewMeta, { color: selectedTextColor }]}
           >
-            選択中: {selectedColor.name}
+            選択中: {selectedColor.label}
           </Text>
         </View>
       </View>
@@ -102,17 +102,19 @@ export default function ColorScreen() {
       <View style={styles.palettePanel}>
         <View style={styles.panelTitle}>
           <Text style={styles.panelTitleText}>色の地図</Text>
-          <Text style={styles.panelTitleMeta}>24色固定</Text>
+          <Text style={styles.panelTitleMeta}>色を選ぶ</Text>
         </View>
         <View accessibilityLabel="24色パレット" style={styles.paletteGrid}>
           {palette.map((color) => {
-            const selected = color.name === draft.colorName;
+            const selected =
+              color.index === selectedColor.index &&
+              color.hex === selectedColor.hex;
             return (
               <Pressable
-                accessibilityLabel={`${color.name}を選ぶ`}
+                accessibilityLabel={`${color.label}を選ぶ`}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
-                key={color.name}
+                key={`${color.index}-${color.hex}`}
                 onPress={() => setSelectedColor(color)}
                 style={[styles.paletteChoice, selected && styles.paletteChoiceSelected]}
               >
@@ -123,7 +125,7 @@ export default function ColorScreen() {
                   numberOfLines={1}
                   style={styles.paletteName}
                 >
-                  {color.name}
+                  {color.label}
                 </Text>
               </Pressable>
             );

@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { generateDayPalette } from "@onecolor/shared";
 import {
   normalizePendingEntries,
   removePendingEntry,
@@ -6,16 +7,19 @@ import {
   upsertPendingEntry,
 } from "./sync";
 
+const words = ["雨", "改札", "嘘"] as [string, string, string];
+const color = generateDayPalette({ date: "2026-06-01", words })[0]!;
+
 describe("sync helpers", () => {
   it("normalizes only valid pending entries", () => {
     const pending = {
       baseUpdatedAt: null,
       clientMutationId: "mutation-1",
-      colorName: "遠い青",
+      color,
       date: "2026-06-01",
       queuedAt: "2026-06-01T00:00:00.000Z",
       status: "queued",
-      words: ["雨", "改札", "嘘"],
+      words,
     };
 
     expect(normalizePendingEntries([pending, { date: "bad" }])).toEqual({
@@ -27,11 +31,11 @@ describe("sync helpers", () => {
     const pending = {
       baseUpdatedAt: null,
       clientMutationId: "mutation-1",
-      colorName: "遠い青",
+      color,
       date: "2026-06-01",
       queuedAt: "2026-06-01T00:00:00.000Z",
       status: "syncing",
-      words: ["雨", "改札", "嘘"],
+      words,
     };
 
     expect(normalizePendingEntries([pending])["2026-06-01"]?.status).toBe(
@@ -43,11 +47,11 @@ describe("sync helpers", () => {
     const pending = {
       baseUpdatedAt: null,
       clientMutationId: "mutation-1",
-      colorName: "遠い青",
+      color,
       date: "2026-06-01",
       queuedAt: "2026-06-01T00:00:00.000Z",
       status: "failed" as const,
-      words: ["雨", "改札", "嘘"] as [string, string, string],
+      words,
     };
 
     const withEntry = upsertPendingEntry({}, pending);
@@ -57,7 +61,7 @@ describe("sync helpers", () => {
 
   it("rolls an empty old today draft forward only when it is still empty", () => {
     const emptyDraft = {
-      colorName: "遠い青",
+      color: null,
       date: "2026-05-31",
       words: ["", "", ""] as [string, string, string],
     };

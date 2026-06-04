@@ -1,5 +1,7 @@
 import request from "supertest";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import type { GeneratedColor } from "@onecolor/shared";
+import { generateDayPalette } from "@onecolor/shared";
 import { createApp } from "../src/server.ts";
 
 const userA = "aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa";
@@ -14,36 +16,43 @@ const userI = "33333333-3333-4333-8333-333333333333";
 const missingEntryId = "99999999-9999-4999-8999-999999999999";
 
 type FeedTestItem = {
-  colorName: string;
+  colorLabel: string;
   createdAt: string;
+  date: string;
   entryId: string;
   returnedColor?: {
-    colorName: string;
+    colorLabel: string;
   };
-  words: string[];
+  words: [string, string, string];
 };
 
 describe("OneColor API", () => {
   let app: Awaited<ReturnType<typeof createApp>>;
 
+  const generatedColor = (
+    date: string,
+    words: [string, string, string],
+    index = 0,
+  ): GeneratedColor => generateDayPalette({ date, words })[index]!;
+
   const saveEntry = (
     userId: string,
     date: string,
     words: [string, string, string],
-    colorName: string,
+    colorIndex = 0,
     extra: Record<string, unknown> = {},
   ) =>
     request(app.getHttpServer())
       .put(`/entries/${date}`)
       .set("X-Anonymous-User-Id", userId)
-      .send({ words, colorName, ...extra });
+      .send({ words, color: generatedColor(date, words, colorIndex), ...extra });
 
   const seedFeedEntries = async () => {
-    await saveEntry(userA, "2026-05-29", ["雨", "改札", "旅"], "遠い青").expect(200);
-    await saveEntry(userA, "2026-05-30", ["雨", "改札", "自分"], "遠い青").expect(200);
-    await saveEntry(userD, "2026-05-30", ["雨", "駅", "朝"], "遠い青").expect(200);
-    await saveEntry(userE, "2026-05-31", ["雨", "改札", "午後"], "熱の赤").expect(200);
-    await saveEntry(userF, "2026-05-27", ["本", "机", "犬"], "遠い青").expect(200);
+    await saveEntry(userA, "2026-05-29", ["雨", "改札", "旅"], 1).expect(200);
+    await saveEntry(userA, "2026-05-30", ["雨", "改札", "自分"], 2).expect(200);
+    await saveEntry(userD, "2026-05-30", ["雨", "駅", "朝"], 3).expect(200);
+    await saveEntry(userE, "2026-05-31", ["雨", "改札", "午後"], 4).expect(200);
+    await saveEntry(userF, "2026-05-27", ["本", "机", "犬"], 5).expect(200);
   };
 
   const findFeedItem = (
@@ -90,23 +99,32 @@ describe("OneColor API", () => {
       .expect(404);
   });
 
-  it("rejects invalid saves", async () => {
+  it("rejects invalid saves and old colorName payloads", async () => {
+    const words: [string, string, string] = ["雨", "改札", "嘘"];
+    const color = generatedColor("2026-05-29", words);
+
     await request(app.getHttpServer())
       .put("/entries/2026-05-29")
       .set("X-Anonymous-User-Id", userA)
-      .send({ words: ["長すぎる言葉です。", "改札", "嘘"], colorName: "遠い青" })
+      .send({ words: ["長すぎる言葉です。", "改札", "嘘"], color })
       .expect(400);
 
     await request(app.getHttpServer())
       .put("/entries/2026-05-29")
       .set("X-Anonymous-User-Id", userA)
-      .send({ words: ["雨", "   ", "嘘"], colorName: "遠い青" })
+      .send({ words: ["雨", "   ", "嘘"], color })
       .expect(400);
 
     await request(app.getHttpServer())
       .put("/entries/2026-05-29")
       .set("X-Anonymous-User-Id", userA)
-      .send({ words: ["雨", "改札", "嘘"], colorName: "ない色" })
+      .send({ words, colorName: "遠い青" })
+      .expect(400);
+
+    await request(app.getHttpServer())
+      .put("/entries/2026-05-29")
+      .set("X-Anonymous-User-Id", userA)
+      .send({ words, color: { ...color, hex: "#000000" } })
       .expect(400);
   });
 
@@ -116,11 +134,7 @@ describe("OneColor API", () => {
       .set("X-Anonymous-User-Id", userA)
       .expect(400);
 
-    await request(app.getHttpServer())
-      .put("/entries/2026-02-30")
-      .set("X-Anonymous-User-Id", userA)
-      .send({ words: ["雨", "改札", "嘘"], colorName: "遠い青" })
-      .expect(400);
+    await saveEntry(userA, "2026-02-30", ["雨", "改札", "嘘"]).expect(400);
 
     await request(app.getHttpServer())
       .get("/feed?limit=0")
@@ -129,14 +143,20 @@ describe("OneColor API", () => {
   });
 
   it("saves an entry and returns it in month results", async () => {
+    const words: [string, string, string] = ["雨", "改札", "旅"];
+    const color = generatedColor("2026-05-29", words, 6);
     await request(app.getHttpServer())
       .put("/entries/2026-05-29")
       .set("X-Anonymous-User-Id", userA)
-      .send({ words: ["雨", "改札", "旅"], colorName: "遠い青" })
+      .send({ words, color })
       .expect(200)
       .expect(({ body }) => {
-        expect(body.entry.words).toEqual(["雨", "改札", "旅"]);
-        expect(body.entry.colorHex).toBe("#5F7E96");
+        expect(body.entry.words).toEqual(words);
+        expect(body.entry.colorLabel).toBe(color.label);
+        expect(body.entry.colorHex).toBe(color.hex);
+        expect(body.entry.textColor).toBe(color.textColor);
+        expect(body.entry.colorIndex).toBe(color.index);
+        expect(body.entry.colorAlgorithmVersion).toBe(color.algorithmVersion);
         expect(body.entry.id).toEqual(expect.any(String));
         expect(body.entry.createdAt).toEqual(expect.any(String));
         expect(body.entry.updatedAt).toEqual(expect.any(String));
@@ -148,15 +168,16 @@ describe("OneColor API", () => {
       .expect(200)
       .expect(({ body }) => {
         const entry = body.entries.find((item: { date: string }) => item.date === "2026-05-29");
-        expect(entry.words).toEqual(["雨", "改札", "旅"]);
+        expect(entry.words).toEqual(words);
+        expect(entry.colorLabel).toBe(color.label);
         expect(entry.id).toEqual(expect.any(String));
         expect(entry.updatedAt).toEqual(expect.any(String));
       });
   });
 
   it("returns profile stats across all saved months", async () => {
-    await saveEntry(userH, "2026-04-30", ["前", "月", "色"], "朝の白").expect(200);
-    await saveEntry(userH, "2026-06-01", ["次", "月", "色"], "雨の青").expect(200);
+    await saveEntry(userH, "2026-04-30", ["前", "月", "色"], 0).expect(200);
+    await saveEntry(userH, "2026-06-01", ["次", "月", "色"], 1).expect(200);
 
     await request(app.getHttpServer())
       .get("/profile/stats")
@@ -175,16 +196,16 @@ describe("OneColor API", () => {
       userI,
       "2026-06-02",
       ["朝", "川", "靴"],
-      "雨の青",
+      2,
     ).expect(200);
     const baseUpdatedAt = firstSave.body.entry.updatedAt;
 
     await new Promise((resolve) => setTimeout(resolve, 5));
-    await saveEntry(userI, "2026-06-02", ["夜", "川", "靴"], "夜の紺", {
+    await saveEntry(userI, "2026-06-02", ["夜", "川", "靴"], 3, {
       baseUpdatedAt,
     }).expect(200);
 
-    await saveEntry(userI, "2026-06-02", ["古い", "川", "靴"], "古い紙", {
+    await saveEntry(userI, "2026-06-02", ["古い", "川", "靴"], 4, {
       baseUpdatedAt,
     })
       .expect(409)
@@ -210,19 +231,20 @@ describe("OneColor API", () => {
 
   it("returns other anonymous users in the public feed", async () => {
     await seedFeedEntries();
-    await saveEntry(userG, "2026-05-30", ["雨", "駅", "朝"], "遠い青").expect(200);
+    await saveEntry(userG, "2026-05-30", ["雨", "駅", "朝"], 6).expect(200);
 
     await request(app.getHttpServer())
       .get("/feed")
       .set("X-Anonymous-User-Id", userA)
       .expect(200)
       .expect(({ body }) => {
+        const targetColor = generatedColor("2026-05-30", ["雨", "駅", "朝"], 3);
         expect(body.requiresEntry).toBe(false);
         expect(findFeedItem(body.entries, "雨/改札/旅")).toBeUndefined();
         expect(findFeedItem(body.entries, "雨/改札/自分")).toBeUndefined();
         expect(findFeedItem(body.entries, "雨/駅/朝")).toEqual(
           expect.objectContaining({
-            colorName: "遠い青",
+            colorLabel: targetColor.label,
             createdAt: expect.any(String),
             entryId: expect.any(String),
           }),
@@ -263,21 +285,23 @@ describe("OneColor API", () => {
       throw new Error("Expected feed target to exist");
     }
 
+    const firstColor = generatedColor(target.date, target.words, 7);
     await request(app.getHttpServer())
       .put(`/entries/${target.entryId}/reactions/color`)
       .set("X-Anonymous-User-Id", userA)
-      .send({ colorName: "藤の紫" })
+      .send({ color: firstColor })
       .expect(200)
       .expect(({ body }) => {
-        expect(body.reaction.colorName).toBe("藤の紫");
-        expect(body.reaction.colorHex).toBe("#B8A9C8");
+        expect(body.reaction.colorLabel).toBe(firstColor.label);
+        expect(body.reaction.colorHex).toBe(firstColor.hex);
         expect(body.reaction.userId).toBeUndefined();
       });
 
+    const secondColor = generatedColor(target.date, target.words, 8);
     await request(app.getHttpServer())
       .put(`/entries/${target.entryId}/reactions/color`)
       .set("X-Anonymous-User-Id", userA)
-      .send({ colorName: "蜜の黄" })
+      .send({ color: secondColor })
       .expect(200);
 
     await request(app.getHttpServer())
@@ -286,7 +310,7 @@ describe("OneColor API", () => {
       .expect(200)
       .expect(({ body }) => {
         expect(body.reactions).toHaveLength(1);
-        expect(body.reactions[0].colorName).toBe("蜜の黄");
+        expect(body.reactions[0].colorLabel).toBe(secondColor.label);
         expect(body.reactions[0].userId).toBeUndefined();
       });
 
@@ -296,7 +320,7 @@ describe("OneColor API", () => {
       .expect(200)
       .expect(({ body }) => {
         const returned = findFeedItem(body.entries, "雨/改札/午後");
-        expect(returned?.returnedColor?.colorName).toBe("蜜の黄");
+        expect(returned?.returnedColor?.colorLabel).toBe(secondColor.label);
       });
   });
 
@@ -312,6 +336,7 @@ describe("OneColor API", () => {
       throw new Error("Expected feed target to exist");
     }
 
+    const validColor = generatedColor(target.date, target.words, 2);
     await request(app.getHttpServer())
       .put(`/entries/${target.entryId}/reactions/color`)
       .set("X-Anonymous-User-Id", userA)
@@ -319,9 +344,15 @@ describe("OneColor API", () => {
       .expect(400);
 
     await request(app.getHttpServer())
+      .put(`/entries/${target.entryId}/reactions/color`)
+      .set("X-Anonymous-User-Id", userA)
+      .send({ color: { ...validColor, label: "深い黒" } })
+      .expect(400);
+
+    await request(app.getHttpServer())
       .put(`/entries/${missingEntryId}/reactions/color`)
       .set("X-Anonymous-User-Id", userA)
-      .send({ colorName: "遠い青" })
+      .send({ color: validColor })
       .expect(404);
 
     const userDFeedResponse = await request(app.getHttpServer())
@@ -336,7 +367,7 @@ describe("OneColor API", () => {
     await request(app.getHttpServer())
       .put(`/entries/${ownTarget.entryId}/reactions/color`)
       .set("X-Anonymous-User-Id", userA)
-      .send({ colorName: "遠い青" })
+      .send({ color: generatedColor(ownTarget.date, ownTarget.words, 0) })
       .expect(400);
   });
 

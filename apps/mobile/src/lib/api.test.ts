@@ -76,16 +76,18 @@ describe("api requests", () => {
       .fn<ApiFetch>()
       .mockRejectedValueOnce(new TypeError("network down"))
       .mockResolvedValueOnce(
-        new Response(JSON.stringify({ colors: [] }), { status: 200 }),
+        new Response(JSON.stringify({ stats: { totalEntries: 0, totalWords: 0 } }), { status: 200 }),
       );
     const client = createApiClient({
       baseUrls: ["http://127.0.0.1:3000", "http://10.0.2.2:3000"],
       fetchImpl,
     });
 
-    await expect(client.palette("user-1")).resolves.toEqual({ colors: [] });
+    await expect(client.profileStats("user-1")).resolves.toEqual({
+      stats: { totalEntries: 0, totalWords: 0 },
+    });
     expect(fetchImpl).toHaveBeenCalledTimes(2);
-    expect(fetchImpl.mock.calls[1]?.[0]).toBe("http://10.0.2.2:3000/palette");
+    expect(fetchImpl.mock.calls[1]?.[0]).toBe("http://10.0.2.2:3000/profile/stats");
     expect(fetchImpl.mock.calls[1]?.[1]?.headers).toMatchObject({
       "X-Anonymous-User-Id": "user-1",
     });
@@ -102,7 +104,7 @@ describe("api requests", () => {
       fetchImpl,
     });
 
-    await expect(client.palette("user-1")).rejects.toMatchObject({
+    await expect(client.profileStats("user-1")).rejects.toMatchObject({
       message: "bad request",
       status: 400,
     } satisfies Partial<ApiRequestError>);
@@ -118,7 +120,7 @@ describe("api requests", () => {
       fetchImpl,
     });
 
-    await expect(client.palette("user-1")).rejects.toMatchObject({
+    await expect(client.profileStats("user-1")).rejects.toMatchObject({
       attemptedUrls: ["http://127.0.0.1:3000"],
       message: "APIに接続できませんでした。",
     } satisfies Partial<ApiConnectionError>);

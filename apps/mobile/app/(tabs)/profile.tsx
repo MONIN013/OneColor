@@ -47,7 +47,7 @@ export default function ProfileScreen() {
               { color: entry?.textColor ?? colors.inkSubtle },
             ]}
           >
-            {entry?.colorName ?? "未記録"}
+            {entry?.colorLabel ?? "未記録"}
           </Text>
         </View>
         <View style={styles.profileCopy}>

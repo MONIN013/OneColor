@@ -1,11 +1,18 @@
 import { router } from "expo-router";
 import { PenLine } from "lucide-react-native";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { generateDayPalette } from "@onecolor/shared";
 import { AppButton } from "../src/components/AppButton";
 import { DecorativeSwatches } from "../src/components/DecorativeSwatches";
 import { Screen } from "../src/components/Screen";
 import { useAppState } from "../src/state/AppState";
 import { colors, fonts, radii, shadowLifted, surfaces } from "../src/theme";
+
+const specimenWords = ["雨", "改札", "嘘"] as [string, string, string];
+const specimenColor = generateDayPalette({
+  date: "2026-06-02",
+  words: specimenWords,
+})[0]!;
 
 export default function OnboardingScreen() {
   const { markOnboardingSeen } = useAppState();
@@ -27,7 +34,7 @@ export default function OnboardingScreen() {
         <Text style={styles.brandSub}>3 words, 1 color</Text>
       </View>
 
-      <View accessibilityLabel="雨 改札 嘘 遠い青" style={styles.specimenHero}>
+      <View accessibilityLabel={`雨 改札 嘘 ${specimenColor.label}`} style={styles.specimenHero}>
         <View style={styles.specimenStage}>
           <DecorativeSwatches size={88} style={styles.specimenSwatches} />
         </View>
@@ -41,7 +48,7 @@ export default function OnboardingScreen() {
             雨 / 改札 / 嘘
           </Text>
           <Text numberOfLines={1} style={styles.specimenColor}>
-            遠い青
+            {specimenColor.label}
           </Text>
         </View>
       </View>

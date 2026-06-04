@@ -52,7 +52,13 @@ export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
 
   const reset = async () => {
     await resetDraft({
-      colorName: entry?.colorName ?? "遠い青",
+      color: entry ? {
+        algorithmVersion: entry.colorAlgorithmVersion,
+        hex: entry.colorHex,
+        index: entry.colorIndex,
+        label: entry.colorLabel,
+        textColor: entry.textColor,
+      } : null,
       date,
       words: entry?.words ?? ["", "", ""],
     });
@@ -86,7 +92,7 @@ export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
 
       {entry ? (
         <View
-          accessibilityLabel={`${entry.colorName} ${formatWords(entry.words)}`}
+          accessibilityLabel={`${entry.colorLabel} ${formatWords(entry.words)}`}
           style={[styles.dayCard, { backgroundColor: entry.colorHex }]}
         >
           <View
@@ -103,7 +109,7 @@ export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
               numberOfLines={1}
               style={[styles.cardColor, { color: entry.textColor }]}
             >
-              {entry.colorName}
+              {entry.colorLabel}
             </Text>
           </View>
           <View style={styles.cardWordStack}>
@@ -205,7 +211,7 @@ export function DayRecordView({ date, isToday = false }: DayRecordViewProps) {
                 <View key={reaction.id} style={styles.replyChip}>
                   <View style={[styles.replyDot, { backgroundColor: reaction.colorHex }]} />
                   <Text numberOfLines={1} style={styles.replyChipText}>
-                    {reaction.colorName}
+                    {reaction.colorLabel}
                   </Text>
                 </View>
               ))}
